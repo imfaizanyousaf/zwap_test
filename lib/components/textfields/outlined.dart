@@ -8,10 +8,12 @@ class TextFieldOutlined extends StatefulWidget {
   final bool? isPasswordField;
   final IconData? suffixIcon;
   final Function(String)? onChanged;
+  final bool valid;
 
   TextFieldOutlined({
     required this.label,
     required this.controller,
+    required this.valid,
     this.obscureText = false,
     this.suffixIcon,
     this.onChanged,
@@ -37,6 +39,8 @@ class _TextFieldOutlinedState extends State<TextFieldOutlined> {
       obscureText: widget.obscureText && !_passwordVisible,
       onChanged: widget.onChanged,
       decoration: InputDecoration(
+        errorText: widget.valid ? null : "Invalid Value",
+        errorStyle: TextStyle(color: Colors.red),
         labelText: widget.label,
         floatingLabelStyle: TextStyle(color: AppColor.primary),
         border: OutlineInputBorder(

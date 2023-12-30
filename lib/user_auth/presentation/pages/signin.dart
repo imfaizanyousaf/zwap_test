@@ -1,16 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/constants/colors.dart';
+import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/home.dart';
+import 'package:zwap_test/user_auth/firebase_auth/firebaseauth_services.dart';
 import 'package:zwap_test/user_auth/presentation/pages/signup.dart';
 import '/components/textFields/outlined.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
   final TextEditingController _emailController = TextEditingController();
+
   final TextEditingController _passwordController = TextEditingController();
+
+  bool isSigning = false;
+  bool _validEmail = true;
+  bool _validPassword = true;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,13 +80,18 @@ class SignInScreen extends StatelessWidget {
                 ),
                 TextFieldOutlined(
                   label: "Email",
+                  valid: _validEmail,
                   controller: _emailController,
+                  onChanged: (_emailController) {
+                    isEmailValid();
+                  },
                 ),
                 SizedBox(
                   height: 16,
                 ),
                 TextFieldOutlined(
                   label: "Password",
+                  valid: _validPassword,
                   obscureText: true,
                   controller: _passwordController,
                   suffixIcon: Icons.remove_red_eye,
@@ -91,15 +119,12 @@ class SignInScreen extends StatelessWidget {
                   height: 16,
                 ),
                 PrimaryLarge(
-                    text: 'Sign In',
-                    onPressed: () => {
-                          Navigator.pushAndRemoveUntil<void>(
-                              context,
-                              MaterialPageRoute<void>(
-                                  builder: (BuildContext context) =>
-                                      HomeScreen()),
-                              ModalRoute.withName('/'))
-                        }),
+                  text: 'Sign In',
+                  loading: isSigning,
+                  onPressed: () {
+                    _signIn(context);
+                  },
+                ),
                 SizedBox(
                   height: 16,
                 ),
@@ -137,5 +162,52 @@ class SignInScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _signIn(BuildContext context) async {
+    setState(() {
+      isSigning = true;
+    });
+    isEmailValid();
+    if (!_validEmail) {
+      setState(() {
+        isSigning = false;
+      });
+      return;
+    }
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.sigInWithEmailAndPassword(email, password);
+
+    setState(() {
+      isSigning = false;
+    });
+    if (user != null) {
+      showToast(message: 'Login Successful');
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+        (Route route) => false,
+      );
+    }
+  }
+
+  void isEmailValid() {
+    String email = _emailController.text.trim();
+
+    // Check if the email is empty
+    if (email.isEmpty) {
+      setState(() {
+        _validEmail = false;
+      });
+      return;
+    }
+    // Regular expression for a basic email validation
+    RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
+
+    setState(() {
+      _validEmail = emailRegex.hasMatch(email);
+    });
   }
 }
