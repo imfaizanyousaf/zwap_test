@@ -1,4 +1,3 @@
-import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:zwap_test/user_auth/presentation/pages/signup.dart';
@@ -15,11 +14,6 @@ void main() async {
       projectId: "zwap-99cf8",
     ),
   );
-  try {
-    await FirebaseAppCheck.instance.activate();
-  } on Exception catch (e) {
-    print("Error activating app check api: ${e}");
-  }
 
   runApp(MyApp());
 }

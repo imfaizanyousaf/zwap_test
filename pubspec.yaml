@@ -69,6 +69,7 @@ flutter:
   assets:
     - assets/icon.svg
     - assets/zwap.svg
+    - assets/email-illustration.svg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
