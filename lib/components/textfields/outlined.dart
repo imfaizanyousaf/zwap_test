@@ -30,6 +30,7 @@ class _TextFieldOutlinedState extends State<TextFieldOutlined> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: TextInputType.emailAddress,
       style: TextStyle(
         color: Colors.black87,
         fontWeight: FontWeight.normal,

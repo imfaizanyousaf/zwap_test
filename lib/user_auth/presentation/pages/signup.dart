@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/constants/colors.dart';
+import 'package:zwap_test/home.dart';
 import 'package:zwap_test/user_auth/firebase_auth/firebaseauth_services.dart';
 import 'package:zwap_test/user_auth/presentation/pages/signin.dart';
 import 'package:zwap_test/user_auth/presentation/pages/verify.dart';
@@ -139,11 +140,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         text: 'Login',
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => VerifyScreen(),
-                                ));
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SignInScreen()),
+                              (Route route) => false,
+                            );
                           },
                         style: TextStyle(
                           color: AppColor.primary,
@@ -186,10 +188,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
 
     if (user != null) {
-      Navigator.pushAndRemoveUntil(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => VerifyScreen()),
-        (Route route) => false,
       );
     }
   }

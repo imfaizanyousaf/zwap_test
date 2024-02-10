@@ -25,8 +25,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
     // Automatically send the email verification link the first time
     _sendEmailVerification();
 
-    // Start a periodic timer to check email verification status every 5 seconds
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+    // Start a periodic timer to check email verification status every 3 seconds
+    _timer = Timer.periodic(Duration(seconds: 3), (timer) {
       _checkVerificationStatus();
     });
 
@@ -53,7 +53,11 @@ class _VerifyScreenState extends State<VerifyScreen> {
   }
 
   Future<void> _checkVerificationStatus() async {
-    await FirebaseAuth.instance.currentUser!.reload();
+    try {
+      await FirebaseAuth.instance.currentUser!.reload();
+    } on FirebaseAuthException catch (e) {
+      print("${e.code}");
+    }
 
     if (FirebaseAuth.instance.currentUser!.emailVerified) {
       // Stop the timer if email is verified
@@ -151,19 +155,15 @@ class _VerifyScreenState extends State<VerifyScreen> {
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: _handleResendButton,
-              child: Text('Resend Link'),
+              child: isResendButtonDisabled
+                  ? Text("Resend Link in $countdown")
+                  : Text('Resend Link'),
               // Disable the button based on the isResendButtonDisabled variable
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     isResendButtonDisabled ? Colors.grey : AppColor.primary,
               ),
             ),
-            SizedBox(height: isResendButtonDisabled ? 8 : 0),
-            if (isResendButtonDisabled)
-              Text(
-                'Resend Link in $countdown seconds',
-                style: TextStyle(fontSize: 14),
-              ),
           ],
         ),
       ),
