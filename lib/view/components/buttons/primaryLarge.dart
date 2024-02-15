@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zwap_test/constants/colors.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 
 class PrimaryLarge extends StatelessWidget {
   final String text;

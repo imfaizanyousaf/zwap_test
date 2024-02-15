@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:zwap_test/constants/colors.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 
 class TextFieldOutlined extends StatefulWidget {
   final String label;
@@ -9,6 +9,8 @@ class TextFieldOutlined extends StatefulWidget {
   final IconData? suffixIcon;
   final Function(String)? onChanged;
   final bool valid;
+  final TextInputType? keyboard;
+  final String errorMessage;
 
   TextFieldOutlined({
     required this.label,
@@ -18,6 +20,8 @@ class TextFieldOutlined extends StatefulWidget {
     this.suffixIcon,
     this.onChanged,
     this.isPasswordField,
+    this.keyboard = TextInputType.text,
+    this.errorMessage = "Invalid Value",
   });
 
   @override
@@ -30,7 +34,7 @@ class _TextFieldOutlinedState extends State<TextFieldOutlined> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: widget.keyboard,
       style: TextStyle(
         color: Colors.black87,
         fontWeight: FontWeight.normal,
@@ -40,7 +44,7 @@ class _TextFieldOutlinedState extends State<TextFieldOutlined> {
       obscureText: widget.obscureText && !_passwordVisible,
       onChanged: widget.onChanged,
       decoration: InputDecoration(
-        errorText: widget.valid ? null : "Invalid Value",
+        errorText: widget.valid ? null : widget.errorMessage,
         errorStyle: TextStyle(color: Colors.red),
         labelText: widget.label,
         floatingLabelStyle: TextStyle(color: AppColor.primary),

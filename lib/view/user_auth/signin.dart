@@ -2,13 +2,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:zwap_test/components/buttons/primaryLarge.dart';
-import 'package:zwap_test/constants/colors.dart';
+import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/global/commons/toast.dart';
-import 'package:zwap_test/home.dart';
-import 'package:zwap_test/user_auth/firebase_auth/firebaseauth_services.dart';
-import 'package:zwap_test/user_auth/presentation/pages/signup.dart';
-import '/components/textFields/outlined.dart';
+import 'package:zwap_test/view/home.dart';
+import 'package:zwap_test/data/firebase_auth/firebaseauth_services.dart';
+import 'package:zwap_test/view/user_auth/signup.dart';
+import 'package:zwap_test/view/components/textFields/outlined.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -18,9 +18,7 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen> {
   final FirebaseAuthService _auth = FirebaseAuthService();
-
   final TextEditingController _emailController = TextEditingController();
-
   final TextEditingController _passwordController = TextEditingController();
 
   bool isSigning = false;
@@ -81,6 +79,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 TextFieldOutlined(
                   label: "Email",
                   valid: _validEmail,
+                  errorMessage: "Invalid Email",
+                  keyboard: TextInputType.emailAddress,
                   controller: _emailController,
                   onChanged: (_emailController) {
                     isEmailValid();
@@ -91,6 +91,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Password",
+                  errorMessage: "Invalid Password",
                   valid: _validPassword,
                   obscureText: true,
                   controller: _passwordController,

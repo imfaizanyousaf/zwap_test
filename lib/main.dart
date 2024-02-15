@@ -1,18 +1,20 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:zwap_test/home.dart';
-import 'package:zwap_test/user_auth/presentation/pages/signup.dart';
-import 'package:zwap_test/splash_screen.dart';
+import 'package:zwap_test/view/user_auth/signup.dart';
+import 'package:zwap_test/view/splash_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
+  await dotenv.load(fileName: 'assets/.env');
+  print(dotenv.env["API_KEY"].toString());
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     // Replace with actual values
     options: FirebaseOptions(
-      apiKey: "AIzaSyDs8rOyyudjUqXDamZUUTeMIpEYC3qzRNk",
-      appId: "1:220218679360:android:0eea04963133fb1af13fa5",
-      messagingSenderId: "220218679360",
-      projectId: "zwap-99cf8",
+      apiKey: dotenv.env["API_KEY"].toString(),
+      appId: dotenv.env["API_ID"].toString(),
+      messagingSenderId: dotenv.env["MESSAGING_SENDER_ID"].toString(),
+      projectId: dotenv.env["PROJECT_ID"].toString(),
     ),
   );
 

@@ -2,13 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:zwap_test/components/buttons/primaryLarge.dart';
-import 'package:zwap_test/constants/colors.dart';
-import 'package:zwap_test/home.dart';
-import 'package:zwap_test/user_auth/firebase_auth/firebaseauth_services.dart';
-import 'package:zwap_test/user_auth/presentation/pages/signin.dart';
-import 'package:zwap_test/user_auth/presentation/pages/verify.dart';
-import '/components/textFields/outlined.dart';
+import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
+import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/data/firebase_auth/firebaseauth_services.dart';
+import 'package:zwap_test/view/user_auth/signin.dart';
+import 'package:zwap_test/view/user_auth/verify.dart';
+import 'package:zwap_test/view/components/textFields/outlined.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -83,6 +82,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Full Name",
+                  errorMessage: "Name is required!",
                   controller: _nameController,
                   onChanged: (_nameController) {
                     isNameValid();
@@ -94,8 +94,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Email",
+                  errorMessage: "Email Invalid",
                   controller: _emailController,
                   valid: _validEmail,
+                  keyboard: TextInputType.emailAddress,
                   onChanged: (_emailController) {
                     isEmailValid();
                   },
@@ -106,6 +108,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFieldOutlined(
                   label: "Password",
                   valid: _validPassword,
+                  errorMessage: "Password must contain minimum 6 characters",
                   onChanged: (_passwordController) {
                     isPasswordValid();
                   },

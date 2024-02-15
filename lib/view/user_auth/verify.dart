@@ -3,9 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:zwap_test/constants/colors.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/global/commons/toast.dart';
-import 'package:zwap_test/home.dart';
+import 'package:zwap_test/view/home.dart';
 
 class VerifyScreen extends StatefulWidget {
   @override
@@ -46,10 +46,6 @@ class _VerifyScreenState extends State<VerifyScreen> {
 
   Future<void> _sendEmailVerification() async {
     await FirebaseAuth.instance.currentUser!.sendEmailVerification();
-
-    // You can handle the result accordingly, for simplicity, just print the result
-    print(
-        "Email verification sent to: ${FirebaseAuth.instance.currentUser!.email}");
   }
 
   Future<void> _checkVerificationStatus() async {
@@ -70,8 +66,6 @@ class _VerifyScreenState extends State<VerifyScreen> {
         MaterialPageRoute(builder: (context) => HomeScreen()),
         (Route route) => false,
       );
-    } else {
-      // Email not verified yet. Display a message if needed.
     }
   }
 
