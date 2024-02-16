@@ -2,22 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 
 class BottomNav extends StatefulWidget {
-  const BottomNav({super.key});
+  final int initialIndex;
+  final Function(int) onTabTapped;
+
+  const BottomNav({
+    Key? key,
+    this.initialIndex = 0,
+    required this.onTabTapped,
+  }) : super(key: key);
 
   @override
   State<BottomNav> createState() => _BottomNavState();
 }
 
 class _BottomNavState extends State<BottomNav> {
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
   @override
   Widget build(BuildContext context) {
-    int _currentIndex = 0;
     return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
       currentIndex: _currentIndex,
       onTap: (index) {
         setState(() {
           _currentIndex = index;
         });
+        widget.onTabTapped(index);
       },
       fixedColor: AppColor.primaryDark,
       unselectedItemColor: Colors.black87,

@@ -94,7 +94,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Email",
-                  errorMessage: "Email Invalid",
+                  errorMessage: _emailController == ""
+                      ? "This field is required"
+                      : "Invalid Email",
                   controller: _emailController,
                   valid: _validEmail,
                   keyboard: TextInputType.emailAddress,
@@ -108,7 +110,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFieldOutlined(
                   label: "Password",
                   valid: _validPassword,
-                  errorMessage: "Password must contain minimum 6 characters",
+                  errorMessage: _passwordController == ""
+                      ? "This field is required"
+                      : "Minimum password length is 6",
                   onChanged: (_passwordController) {
                     isPasswordValid();
                   },
