@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 
 class BottomNav extends StatefulWidget {
-  final int initialIndex;
+  final int index;
   final Function(int) onTabTapped;
 
   const BottomNav({
     Key? key,
-    this.initialIndex = 0,
+    this.index = 0,
     required this.onTabTapped,
   }) : super(key: key);
 
@@ -21,7 +22,7 @@ class _BottomNavState extends State<BottomNav> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
+    _currentIndex = widget.index;
   }
 
   @override
@@ -41,23 +42,68 @@ class _BottomNavState extends State<BottomNav> {
       unselectedItemColor: Colors.black87,
       items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.home),
+          icon: SvgPicture.asset(
+            'assets/icons/home-inactive.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/home-active.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.search),
+          icon: SvgPicture.asset(
+            'assets/icons/search-inactive.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/search-active.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
           label: 'Explore',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.add),
+          icon: SvgPicture.asset(
+            'assets/icons/add-inactive.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/add-active.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
           label: 'Post',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.swap_horiz),
+          icon: SvgPicture.asset(
+            'assets/icons/swap-inactive.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/swap-active.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
           label: 'Requests',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.chat),
+          icon: SvgPicture.asset(
+            'assets/icons/chat-inactive.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
+          activeIcon: SvgPicture.asset(
+            'assets/icons/chat-active.svg',
+            height: 24.0,
+            width: 24.0,
+          ),
           label: 'Chat',
         ),
       ],

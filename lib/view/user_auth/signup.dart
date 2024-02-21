@@ -160,7 +160,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ])),
                 ),
                 SizedBox(
-                  height: 16,
+                  height: 32,
                 )
               ],
             ),
@@ -184,7 +184,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
       return;
     }
-    String name = _nameController.text;
+    // String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
 

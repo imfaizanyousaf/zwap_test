@@ -9,7 +9,7 @@ class PrimaryLarge extends StatelessWidget {
   PrimaryLarge(
       {required this.text,
       required this.onPressed,
-      this.color,
+      this.color = AppColor.primary,
       this.loading = false});
 
   @override
@@ -17,32 +17,38 @@ class PrimaryLarge extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: loading ? AppColor.primaryDisabled : AppColor.primary,
-        padding: EdgeInsets.symmetric(vertical: 18.0),
+        backgroundColor: loading ? AppColor.primaryDisabled : color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(45.0),
         ),
       ),
       child: Container(
         width: double.infinity,
-        child: Center(
-          child: loading
-              ? SizedBox(
-                  width: 24.0, // Set the desired width
-                  height: 24.0, // Set the desired height
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    strokeWidth: 3.0, // Set the desired stroke width
-                  ))
-              : Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                    letterSpacing: 1.25,
-                    color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Center(
+            child: loading
+                ? SizedBox(
+                    width: 24.0, // Set the desired width
+                    height: 24.0, // Set the desired height
+                    child: CircularProgressIndicator(
+                      valueColor: color == AppColor.primary
+                          ? AlwaysStoppedAnimation<Color>(Colors.white)
+                          : AlwaysStoppedAnimation<Color>(AppColor.primary),
+                      strokeWidth: 3.0, // Set the desired stroke width
+                    ))
+                : Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.normal,
+                      letterSpacing: 1.25,
+                      color: color == AppColor.primary
+                          ? Colors.white
+                          : AppColor.primary,
+                    ),
                   ),
-                ),
+          ),
         ),
       ),
     );

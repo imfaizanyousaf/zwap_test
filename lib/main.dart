@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:zwap_test/view/home.dart';
+import 'package:zwap_test/view/onboarding.dart';
 import 'package:zwap_test/view/user_auth/signup.dart';
 import 'package:zwap_test/view/splash_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -28,10 +29,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Zwap',
-      home: HomeScreen(),
-      // home: SplashScreen(
-      //   child: SignUpScreen(),
-      // ), // Set SplashScreen as the initial screen
+      // home: HomeScreen(),
+      home: SplashScreen(
+        child: OnboardingScreen(),
+      ), // Set SplashScreen as the initial screen
     );
   }
 }

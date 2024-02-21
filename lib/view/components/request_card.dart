@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 
-class PostCard extends StatelessWidget {
-  const PostCard({super.key});
+class RequestCard extends StatelessWidget {
+  const RequestCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +11,7 @@ class PostCard extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: Card(
         clipBehavior: Clip.antiAliasWithSaveLayer,
-        color: Colors.white,
+        color: AppColor.background,
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -36,45 +35,37 @@ class PostCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        InkWell(
-                          borderRadius: BorderRadius.circular(100),
-                          onTap: () {},
-                          child: Row(
+                        Container(
+                          width: 32,
+                          height: 32,
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          child: Image.network(
+                            'https://picsum.photos/seed/856/600',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.error),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                clipBehavior: Clip.antiAlias,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Image.network(
-                                  'https://picsum.photos/seed/856/600',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.error),
+                              Text(
+                                'Usman Ibrahim',
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Usman Ibrahim',
-                                      style: GoogleFonts.manrope(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      'Just Now',
-                                      style: GoogleFonts.manrope(
-                                        fontSize: 8,
-                                      ),
-                                    ),
-                                  ],
+                              Text(
+                                'Just Now',
+                                style: GoogleFonts.manrope(
+                                  fontSize: 8,
                                 ),
                               ),
                             ],
@@ -85,43 +76,7 @@ class PostCard extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.more_horiz),
                       onPressed: () {
-                        showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16.0),
-                              child: Container(
-                                child: Wrap(
-                                  children: <Widget>[
-                                    ListTile(
-                                      leading:
-                                          Icon(Icons.favorite_border_rounded),
-                                      title: Text('Add to favorites'),
-                                      onTap: () => {},
-                                    ),
-                                    ListTile(
-                                      leading: Icon(Icons.copy),
-                                      title: Text('Copy Link'),
-                                      onTap: () => {},
-                                    ),
-                                    ListTile(
-                                      leading: Icon(
-                                        Icons.flag_outlined,
-                                        color: Colors.red,
-                                      ),
-                                      title: Text(
-                                        'Report',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                      onTap: () => {},
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                        // Handle more options button press
                       },
                     ),
                   ],
@@ -261,8 +216,10 @@ class PostCard extends StatelessWidget {
                       children: [
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
-                          child: SvgPicture.asset(
-                            'assets/repeat.svg',
+                          child: Icon(
+                            Icons.swap_horiz,
+                            color: Colors.black54,
+                            size: 15,
                           ),
                         ),
                         Text(
