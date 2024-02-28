@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/res/health.dart';
+import 'package:zwap_test/view/components/health_badge.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({super.key});
@@ -209,27 +211,7 @@ class PostCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: Container(
-                      width: 65,
-                      height: 17,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFABF0FF),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      alignment: AlignmentDirectional(0, 0),
-                      child: Align(
-                        alignment: AlignmentDirectional(0, 0),
-                        child: Text(
-                          'LIKE NEW',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  HealthBadge(condition: Health.NEW),
                   Text(
                     'Valencia, Spain',
                     textAlign: TextAlign.end,
