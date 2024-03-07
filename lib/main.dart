@@ -29,10 +29,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Zwap',
-      // home: HomeScreen(),
-      home: SplashScreen(
-        child: OnboardingScreen(),
-      ), // Set SplashScreen as the initial screen
+      home: HomeScreen(),
+      // home: SplashScreen(
+      //   child: OnboardingScreen(),
+      // ), // Set SplashScreen as the initial screen
     );
   }
 }

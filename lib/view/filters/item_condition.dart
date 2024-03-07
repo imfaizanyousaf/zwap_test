@@ -13,43 +13,25 @@ class ItemCondition extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: ListView.builder(
           shrinkWrap: true,
-          itemCount: categories.length,
+          itemCount: health.length,
           itemBuilder: (context, index) {
-            return Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Color.fromARGB(
-                      65,
-                      0,
-                      0,
-                      0,
-                    ), // You can set the border color here
-                    width: 1.6, // You can set the border width here
+            return CheckboxListTile(
+              title: Wrap(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: HealthBadge(condition: health[index]),
                   ),
-                ),
-                child: CheckboxListTile(
-                  title: Wrap(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: HealthBadge(condition: categories[index]),
-                      ),
-                    ],
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                        "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"),
-                  ),
-                  value: false,
-                  onChanged: (value) {},
-                  controlAffinity: ListTileControlAffinity.leading,
-                ),
+                ],
               ),
+              subtitle: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                    "lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"),
+              ),
+              value: false,
+              onChanged: (value) {},
+              controlAffinity: ListTileControlAffinity.leading,
             );
           },
         ),
@@ -58,7 +40,7 @@ class ItemCondition extends StatelessWidget {
   }
 }
 
-List<Health> categories = [
+List<Health> health = [
   Health.NEW,
   Health.LIKE_NEW,
   Health.GOOD,

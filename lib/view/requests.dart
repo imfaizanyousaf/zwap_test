@@ -6,6 +6,7 @@ import 'package:zwap_test/view/components/bottom_nav.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/request_card.dart';
 import 'package:zwap_test/view/new_post.dart';
+import 'package:zwap_test/view/profile.dart';
 import 'package:zwap_test/view/search.dart';
 
 class RequestScreen extends StatefulWidget {
@@ -33,7 +34,10 @@ class _RequestScreenState extends State<RequestScreen> {
           builder: (BuildContext context) {
             return GestureDetector(
               onTap: () {
-                Scaffold.of(context).openDrawer();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
+                );
               },
               child: Container(
                 margin: EdgeInsets.all(12),
@@ -64,30 +68,6 @@ class _RequestScreenState extends State<RequestScreen> {
           tabs: [
             Tab(text: 'Received'),
             Tab(text: 'Sent'),
-          ],
-        ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              child: Text('Side Menu Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
-            ListTile(
-              title: Text('Menu Item 1'),
-              onTap: () {
-                // Handle menu item 1 tap
-              },
-            ),
-            ListTile(
-              title: Text('Logout'),
-              onTap: () {
-                // Handle logout
-              },
-            ),
           ],
         ),
       ),

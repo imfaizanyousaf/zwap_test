@@ -1,52 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class CustomList extends StatelessWidget {
+class CustomList extends StatefulWidget {
   final List<String> items;
 
   CustomList({required this.items});
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        Widget listItem = CheckboxListTile(
-          title: Text(
-            items[index],
-            style: GoogleFonts.manrope(
-                fontSize: 14,
-                color: Colors.black87,
-                fontWeight: FontWeight.w500),
-          ),
-          value: false,
-          onChanged: (value) {},
-          controlAffinity: ListTileControlAffinity.leading,
-        );
+  _CheckboxListState createState() => _CheckboxListState();
+}
 
-        // Check if it's the first item and there's more than one item
-        if (index == 0 && items.length > 1) {
-          // Add a horizontal divider after the first item
-          return Column(
-            children: [
-              listItem,
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Divider(
-                  height: 0,
-                  thickness: 1.6,
-                  color: Color.fromARGB(65, 0, 0, 0),
-                ),
+class _CheckboxListState extends State<CustomList> {
+  List<String> selectedItems = [];
+  bool listStatus = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ExpansionTile(
+          childrenPadding: EdgeInsets.only(left: 16),
+          title: CheckboxListTile(
+            contentPadding: EdgeInsets.all(0),
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(widget.items[0]),
+            value: (selectedItems.length > 0 &&
+                    selectedItems.length < widget.items.length)
+                ? null
+                : selectedItems.contains(widget.items[0]),
+            tristate: true,
+            onChanged: (value) {
+              setState(() {
+                if (value == true) {
+                  for (String item in widget.items) {
+                    selectedItems.add(item);
+                  }
+                } else {
+                  selectedItems.clear();
+                }
+              });
+            },
+          ),
+          children: [
+            for (String item in widget.items.sublist(1))
+              CheckboxListTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Text(item),
+                value: selectedItems.contains(item),
+                onChanged: (value) {
+                  setState(() {
+                    if (value != null && value) {
+                      selectedItems.add(item);
+                    } else {
+                      selectedItems.remove(item);
+                    }
+                  });
+                },
               ),
-            ],
-          );
-        } else {
-          return listItem;
-        }
-      },
+          ],
+        ),
+      ],
     );
   }
 }

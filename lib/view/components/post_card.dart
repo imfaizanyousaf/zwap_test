@@ -7,7 +7,7 @@ import 'package:zwap_test/view/components/health_badge.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({super.key});
-
+  final int image = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -149,17 +149,77 @@ class PostCard extends StatelessWidget {
                               Image.network(
                                 'https://picsum.photos/seed/169/600',
                                 fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                                    .toDouble()
+                                            : null,
+                                      ),
+                                    );
+                                  }
+                                },
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(Icons.error),
                               ),
                               Image.network(
                                 'https://picsum.photos/seed/144/900',
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                                    .toDouble()
+                                            : null,
+                                      ),
+                                    );
+                                  }
+                                },
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(Icons.error),
                               ),
                               Image.network(
-                                'https://picsum.photos/seed/986/600',
+                                'https://picsum.photos/986/600',
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else {
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                                    .toDouble()
+                                            : null,
+                                      ),
+                                    );
+                                  }
+                                },
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) =>
                                     Icon(Icons.error),

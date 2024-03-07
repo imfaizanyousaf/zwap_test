@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/view/notifications.dart';
+import 'package:zwap_test/view/profile.dart';
 
 class Feed extends StatelessWidget {
   final int selectedIndex;
@@ -27,7 +29,11 @@ class Feed extends StatelessWidget {
                 builder: (BuildContext context) {
                   return GestureDetector(
                     onTap: () {
-                      Scaffold.of(context).openDrawer();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfileScreen()),
+                      );
                     },
                     child: Container(
                       margin: EdgeInsets.all(12),
@@ -46,7 +52,11 @@ class Feed extends StatelessWidget {
                     color: Colors.black,
                   ),
                   onPressed: () {
-                    // Handle notification icon tap
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NotificationsScreen()),
+                    );
                   },
                 ),
               ],

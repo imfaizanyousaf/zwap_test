@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/res/health.dart';
+import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
+import 'package:zwap_test/view/components/health_badge.dart';
 
 class RequestCard extends StatelessWidget {
   const RequestCard({super.key});
+  final int image = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +16,7 @@ class RequestCard extends StatelessWidget {
       padding: EdgeInsets.all(8),
       child: Card(
         clipBehavior: Clip.antiAliasWithSaveLayer,
-        color: AppColor.background,
+        color: Colors.white,
         elevation: 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -27,7 +32,7 @@ class RequestCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+                padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 8),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -35,37 +40,39 @@ class RequestCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: Image.network(
-                            'https://picsum.photos/seed/856/600',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(Icons.error),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        InkWell(
+                          borderRadius: BorderRadius.circular(100),
+                          onTap: () {},
+                          child: Row(
                             children: [
-                              Text(
-                                'Usman Ibrahim',
-                                style: GoogleFonts.manrope(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
+                              Container(
+                                width: 32,
+                                height: 32,
+                                clipBehavior: Clip.antiAlias,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Image.network(
+                                  'https://picsum.photos/seed/856/600',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.error),
                                 ),
                               ),
-                              Text(
-                                'Just Now',
-                                style: GoogleFonts.manrope(
-                                  fontSize: 8,
+                              Padding(
+                                padding: EdgeInsets.all(8),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Usman Ibrahim',
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -73,167 +80,191 @@ class RequestCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.more_horiz),
-                      onPressed: () {
-                        // Handle more options button press
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Stack(alignment: Alignment.bottomCenter, children: [
-                Container(
-                  width: double.infinity,
-                  height: 400,
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: PageView(
-                            // controller: _model.pageViewController ??=
-                            //     PageController(initialPage: 0),
-                            // onPageChanged: (_) => setState(() {}),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              Image.network(
-                                'https://picsum.photos/seed/169/600',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                              Image.network(
-                                'https://picsum.photos/seed/144/900',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                              Image.network(
-                                'https://picsum.photos/seed/986/600',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              ]),
-              Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Container(
-                      width: 65,
-                      height: 17,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFABF0FF),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      alignment: AlignmentDirectional(0, 0),
-                      child: Align(
-                        alignment: AlignmentDirectional(0, 0),
-                        child: Text(
-                          'LIKE NEW',
-                          style: GoogleFonts.manrope(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    'Valencia, Spain',
-                    textAlign: TextAlign.end,
-                    style: GoogleFonts.manrope(
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Sonic Black Headset',
-                      style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
                     Row(
-                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
                           child: Icon(
-                            Icons.swap_horiz,
-                            color: Colors.black54,
-                            size: 15,
+                            Icons.call_received,
+                            color: AppColor.primary,
+                            size: 16,
                           ),
                         ),
                         Text(
-                          'Office Desk, Desk Frame, Office Chair',
+                          '2hrs ago',
+                          textAlign: TextAlign.end,
                           style: GoogleFonts.manrope(
                             fontSize: 12,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 8,
-                    )
-                  ]),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border(
+                      left: BorderSide(
+                        color:
+                            Colors.grey, // Specify the color of the left border
+                        width: 3, // Specify the width of the left border
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            'Hi! I would like to exchange your Canon  EOS-1DX Mark III with my Nikon EDS Mark III. If you need further details you can chat with me',
+                            softWrap: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Stack(alignment: Alignment.center, children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Image.network(
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                                .toDouble()
+                                        : null,
+                                  ),
+                                );
+                              }
+                            },
+                            'https://picsum.photos/1080/1080',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: ClipRRect(
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Image.network(
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                                .toDouble()
+                                        : null,
+                                  ),
+                                );
+                              }
+                            },
+                            'https://picsum.photos/1080/1080',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: SvgPicture.asset(
+                      'assets/repeat.svg',
+                    ),
+                  ),
+                ),
+              ]),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          // Close button logic
+                        },
+                        icon: Icon(Icons.close),
+                        label: Text('Decline'),
+                        style: ButtonStyle(
+                          side: MaterialStateProperty.all(
+                            BorderSide(color: AppColor.secondary),
+                          ),
+                          foregroundColor:
+                              MaterialStateProperty.all(AppColor.secondary),
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          // Chat button logic
+                        },
+                        icon: Icon(Icons.chat),
+                        label: Text('Chat'),
+                        style: ButtonStyle(
+                          side: MaterialStateProperty.all(
+                            BorderSide(color: AppColor.primary),
+                          ),
+                          foregroundColor:
+                              MaterialStateProperty.all(AppColor.primary),
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          // Check button logic
+                        },
+                        icon: Icon(Icons.check),
+                        label: Text('Accept'),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(AppColor.primary),
+                            foregroundColor:
+                                MaterialStateProperty.all(Colors.white)),
+                      ),
+                    ]),
+              ),
             ],
           ),
         ),

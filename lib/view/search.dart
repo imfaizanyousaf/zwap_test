@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/components/interest_card.dart';
 import 'package:zwap_test/view/components/search_box.dart';
 
@@ -7,6 +8,7 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.background,
       appBar: SearchBox(),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

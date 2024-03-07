@@ -1,28 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/view/components/custom_list.dart';
 
 class LocationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.background,
       appBar: AppBar(
+        backgroundColor: AppColor.background,
         title: Text('Select Location'),
       ),
-      body: ListView.builder(
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          return CheckboxListTile(
-            title: Text(categories[index]),
-            value: false,
-            onChanged: (value) {},
-            controlAffinity: ListTileControlAffinity.leading,
-          );
-        },
-      ),
+      body: CustomList(items: locations),
     );
   }
 }
 
-List<String> categories = [
+List<String> locations = [
   'Location 1',
   'Location 2',
   'Location 3',

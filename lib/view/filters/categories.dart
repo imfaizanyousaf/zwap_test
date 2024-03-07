@@ -6,6 +6,7 @@ class CategoriesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: AppColor.background,
         appBar: AppBar(
           backgroundColor: AppColor.background,
           title: Text('Categories'),
@@ -16,11 +17,14 @@ class CategoriesPage extends StatelessWidget {
 
 List<String> categories = [
   'Electronics',
-  'Laptop',
-  'Washing Machine',
-  'Mobile',
-  'Tablet',
-  'Desktop',
-  'Camera',
-  // Add more categories here
+  'Mobile Phones',
+  'Laptops',
+  'Tablets',
+  'Cameras',
+  'Televisions',
+  'Headphones',
+  'Speakers',
+  'Smart Watches',
+  'Printers',
+  'Accessories'
 ];
