@@ -1,25 +1,21 @@
+// chat screen
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/view/components/request_card.dart';
 import 'package:zwap_test/view/profile.dart';
 
-class RequestScreen extends StatefulWidget {
-  @override
-  State<RequestScreen> createState() => _RequestScreenState();
-}
-
-class _RequestScreenState extends State<RequestScreen> {
+class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.background,
       appBar: AppBar(
         backgroundColor: AppColor.background,
         surfaceTintColor: AppColor.background,
         elevation: 1,
         title: Center(
           child: Text(
-            'Requests',
+            'Chat',
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
               fontSize: 24,
@@ -56,39 +52,29 @@ class _RequestScreenState extends State<RequestScreen> {
             },
           ),
         ],
-        bottom: TabBar(
-          labelColor: AppColor.primary,
-          indicatorColor: AppColor.primary,
-          overlayColor:
-              MaterialStateProperty.all<Color>(Color.fromARGB(20, 42, 56, 144)),
-          tabs: [
-            Tab(text: 'Received'),
-            Tab(text: 'Sent'),
-          ],
-        ),
       ),
-      body: TabBarView(
+      body: Column(
         children: [
-          CardList(tabTitle: 'Received'),
-          CardList(tabTitle: 'Sent'),
+          Expanded(
+            child: ListView.builder(
+              itemCount: 3,
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  onTap: () {},
+                  child: ListTile(
+                    tileColor: AppColor.background,
+                    title: Text("Ahmed $index"),
+                    subtitle: Text("Message $index"),
+                    leading: CircleAvatar(
+                      child: Text("U"),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class CardList extends StatelessWidget {
-  final String tabTitle;
-
-  CardList({required this.tabTitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: tabTitle == 'Received' ? 3 : 1,
-      itemBuilder: (BuildContext context, int index) {
-        return RequestCard();
-      },
     );
   }
 }

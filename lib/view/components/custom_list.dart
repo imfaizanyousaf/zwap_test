@@ -50,8 +50,14 @@ class _CheckboxListState extends State<CustomList> {
                   setState(() {
                     if (value != null && value) {
                       selectedItems.add(item);
+                      if (selectedItems.length == widget.items.length - 1) {
+                        selectedItems.add(widget.items[0]);
+                      }
                     } else {
                       selectedItems.remove(item);
+                      if (selectedItems.contains(widget.items[0])) {
+                        selectedItems.remove(widget.items[0]);
+                      }
                     }
                   });
                 },

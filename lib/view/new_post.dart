@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
+import 'package:zwap_test/view/edit_new_post.dart';
 
 class NewPostScreen extends StatelessWidget {
   @override
@@ -46,7 +47,12 @@ class NewPostScreen extends StatelessWidget {
                     color: Color.fromARGB(255, 232, 234, 246),
                     text: 'Select Image',
                     onPressed: () {
-                      // Handle select image button press
+                      // navigate to edit_new_post.dart
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditNewPostScreen(),
+                          ));
                     },
                   ),
                 ),

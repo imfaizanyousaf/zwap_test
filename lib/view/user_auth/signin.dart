@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/global/commons/toast.dart';
@@ -10,6 +11,7 @@ import 'package:zwap_test/data/firebase_auth/firebaseauth_services.dart';
 import 'package:zwap_test/view/user_auth/signup.dart';
 import 'package:zwap_test/view/components/textFields/outlined.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zwap_test/view_model/user.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -17,7 +19,8 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  final FirebaseAuthService _auth = FirebaseAuthService();
+  // final FirebaseAuthService _auth = FirebaseAuthService();
+  final api user_auth = api();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -105,7 +108,10 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: RichText(
                     text: TextSpan(
                         text: 'Forgot Password?',
-                        recognizer: TapGestureRecognizer()..onTap = () {},
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            showToast(message: "Not yet implemented");
+                          },
                         style: GoogleFonts.manrope(
                             textStyle: TextStyle(
                           fontSize: 14,
@@ -179,18 +185,21 @@ class _SignInScreenState extends State<SignInScreen> {
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    User? user = await _auth.sigInWithEmailAndPassword(email, password);
+    // User? user = await _auth.sigInWithEmailAndPassword(email, password);
+    String user = await user_auth.login(email, password);
 
     setState(() {
       isSigning = false;
     });
-    if (user != null) {
+    if (user == 'Success') {
       showToast(message: 'Login Successful');
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
         (Route route) => false,
       );
+    } else {
+      showToast(message: '$user');
     }
   }
 

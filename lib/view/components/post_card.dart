@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/res/health.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
+import 'package:zwap_test/view/product_details.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PostCard extends StatelessWidget {
-  const PostCard({super.key});
+  final Post post;
+  const PostCard({super.key, required this.post});
   final int image = 0;
   @override
   Widget build(BuildContext context) {
@@ -64,15 +68,16 @@ class PostCard extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Usman Ibrahim',
-                                      style: GoogleFonts.manrope(
+                                      post.title,
+                                      style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Text(
-                                      'Just Now',
-                                      style: GoogleFonts.manrope(
+                                      timeago.format(
+                                          DateTime.parse(post.createdAt)),
+                                      style: TextStyle(
                                         fontSize: 8,
                                       ),
                                     ),
@@ -139,92 +144,101 @@ class PostCard extends StatelessWidget {
                         padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 16),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: PageView(
-                            // controller: _model.pageViewController ??=
-                            //     PageController(initialPage: 0),
-                            // onPageChanged: (_) => setState(() {}),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            scrollDirection: Axis.horizontal,
-                            children: [
-                              Image.network(
-                                'https://picsum.photos/seed/169/600',
-                                fit: BoxFit.cover,
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child;
-                                  } else {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                                    .toDouble()
-                                            : null,
-                                      ),
-                                    );
-                                  }
-                                },
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                              Image.network(
-                                'https://picsum.photos/seed/144/900',
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child;
-                                  } else {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                                    .toDouble()
-                                            : null,
-                                      ),
-                                    );
-                                  }
-                                },
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                              Image.network(
-                                'https://picsum.photos/986/600',
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child;
-                                  } else {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress
-                                                    .expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                loadingProgress
-                                                    .expectedTotalBytes!
-                                                    .toDouble()
-                                            : null,
-                                      ),
-                                    );
-                                  }
-                                },
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                            ],
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ProductDetailsScreen()));
+                            },
+                            child: PageView(
+                              // controller: _model.pageViewController ??=
+                              //     PageController(initialPage: 0),
+                              // onPageChanged: (_) => setState(() {}),
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              scrollDirection: Axis.horizontal,
+                              children: [
+                                Image.network(
+                                  'https://picsum.photos/seed/169/600',
+                                  fit: BoxFit.cover,
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    } else {
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                                      .toDouble()
+                                              : null,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.error),
+                                ),
+                                Image.network(
+                                  'https://picsum.photos/seed/144/900',
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    } else {
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                                      .toDouble()
+                                              : null,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.error),
+                                ),
+                                Image.network(
+                                  'https://picsum.photos/986/600',
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    } else {
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                                      .toDouble()
+                                              : null,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.error),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -275,7 +289,7 @@ class PostCard extends StatelessWidget {
                   Text(
                     'Valencia, Spain',
                     textAlign: TextAlign.end,
-                    style: GoogleFonts.manrope(
+                    style: TextStyle(
                       fontSize: 12,
                     ),
                   ),
@@ -290,10 +304,9 @@ class PostCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Sonic Black Headset',
-                      style: GoogleFonts.manrope(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      post.title,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     SizedBox(
                       height: 4,
@@ -308,8 +321,8 @@ class PostCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Office Desk, Desk Frame, Office Chair',
-                          style: GoogleFonts.manrope(
+                          post.description,
+                          style: TextStyle(
                             fontSize: 12,
                           ),
                         ),

@@ -163,6 +163,8 @@ class RequestCard extends StatelessWidget {
                                 );
                               }
                             },
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.error),
                             'https://picsum.photos/1080/1080',
                             fit: BoxFit.cover,
                           ),
@@ -194,6 +196,8 @@ class RequestCard extends StatelessWidget {
                                 );
                               }
                             },
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.error),
                             'https://picsum.photos/1080/1080',
                             fit: BoxFit.cover,
                           ),
@@ -221,28 +225,13 @@ class RequestCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Row(
                     mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          // Close button logic
-                        },
-                        icon: Icon(Icons.close),
-                        label: Text('Decline'),
-                        style: ButtonStyle(
-                          side: MaterialStateProperty.all(
-                            BorderSide(color: AppColor.secondary),
-                          ),
-                          foregroundColor:
-                              MaterialStateProperty.all(AppColor.secondary),
-                        ),
-                      ),
-                      OutlinedButton.icon(
+                      OutlinedButton(
                         onPressed: () {
                           // Chat button logic
                         },
-                        icon: Icon(Icons.chat),
-                        label: Text('Chat'),
+                        child: Icon(Icons.chat),
                         style: ButtonStyle(
                           side: MaterialStateProperty.all(
                             BorderSide(color: AppColor.primary),
@@ -251,18 +240,38 @@ class RequestCard extends StatelessWidget {
                               MaterialStateProperty.all(AppColor.primary),
                         ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          // Check button logic
-                        },
-                        icon: Icon(Icons.check),
-                        label: Text('Accept'),
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(AppColor.primary),
-                            foregroundColor:
-                                MaterialStateProperty.all(Colors.white)),
-                      ),
+                      Row(
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: OutlinedButton(
+                              onPressed: () {
+                                // Close button logic
+                              },
+                              child: Icon(Icons.close),
+                              style: ButtonStyle(
+                                side: MaterialStateProperty.all(
+                                  BorderSide(color: AppColor.secondary),
+                                ),
+                                foregroundColor: MaterialStateProperty.all(
+                                    AppColor.secondary),
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Check button logic
+                            },
+                            child: Icon(Icons.check),
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(AppColor.primary),
+                                foregroundColor:
+                                    MaterialStateProperty.all(Colors.white)),
+                          ),
+                        ],
+                      )
                     ]),
               ),
             ],

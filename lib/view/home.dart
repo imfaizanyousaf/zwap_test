@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/view/chat.dart';
 import 'package:zwap_test/view/components/bottom_nav.dart';
 import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/view/feed.dart';
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
             SearchScreen(),
             NewPostScreen(),
             RequestScreen(),
-            SearchScreen()
+            ChatScreen(),
           ],
           index: _selectedIndex,
         ),
@@ -57,7 +57,7 @@ class CardList extends StatelessWidget {
       child: ListView.builder(
         itemCount: tabTitle == 'For You' ? 3 : 1,
         itemBuilder: (BuildContext context, int index) {
-          return PostCard();
+          return Card();
         },
       ),
     );

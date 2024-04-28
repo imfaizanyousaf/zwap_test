@@ -11,7 +11,7 @@ class CategoriesPage extends StatelessWidget {
           backgroundColor: AppColor.background,
           title: Text('Categories'),
         ),
-        body: CustomList(items: categories));
+        body: SingleChildScrollView(child: CustomList(items: categories)));
   }
 }
 
