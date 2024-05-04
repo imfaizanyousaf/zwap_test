@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:zwap_test/model/categories.dart';
+import 'package:zwap_test/model/conditions.dart';
+import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/utils/dio_interceptor.dart';
 import 'package:zwap_test/utils/token_manager.dart';
@@ -121,6 +124,72 @@ class api {
       }
     } catch (e) {
       throw Exception("Failed to load posts: $e");
+    }
+  }
+
+  Future<List<Categories>> getCategories() async {
+    try {
+      final response = await http.get(Uri.parse(apiUrl + "/categories"));
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = json.decode(response.body);
+        List<Categories> categories =
+            responseData.map((json) => Categories.fromJson(json)).toList();
+        return categories;
+      } else {
+        throw Exception("Failed to load categories ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load categories: $e");
+    }
+  }
+
+  Future<List<Locations>> getLocations() async {
+    try {
+      final response = await http.get(Uri.parse(apiUrl + "/locations"));
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = json.decode(response.body);
+        List<Locations> locationss =
+            responseData.map((json) => Locations.fromJson(json)).toList();
+        return locationss;
+      } else {
+        throw Exception("Failed to load locations ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load locations: $e");
+    }
+  }
+
+  //create an add Post function that takes in a post object and sends a post request to the api
+  Future<String> addPost(Post post) async {
+    try {
+      final response = await _dio.post(
+        "${apiUrl}/posts",
+        data: post.toJson(),
+      );
+      if (response.statusCode == 201) {
+        return response.data.toString();
+      } else {
+        return Future.error(response.statusCode.toString());
+      }
+    } on DioException catch (e) {
+      return e.response?.data ?? 'Error occured';
+    }
+  }
+
+  //create a get condition similar to getCategories fucntion above
+  Future<List<Conditions>> getConditions() async {
+    try {
+      final response = await http.get(Uri.parse(apiUrl + "/conditions"));
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = json.decode(response.body);
+        List<Conditions> conditions =
+            responseData.map((json) => Conditions.fromJson(json)).toList();
+        return conditions;
+      } else {
+        throw Exception("Failed to load conditions ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load conditions: $e");
     }
   }
 }

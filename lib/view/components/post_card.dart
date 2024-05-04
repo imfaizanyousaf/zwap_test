@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/res/health.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/product_details.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -68,15 +67,16 @@ class PostCard extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      post.title,
+                                      post.user == null
+                                          ? ''
+                                          : post.user.firstName,
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Text(
-                                      timeago.format(
-                                          DateTime.parse(post.createdAt)),
+                                      timeago.format(post.createdAt),
                                       style: TextStyle(
                                         fontSize: 8,
                                       ),
@@ -285,7 +285,7 @@ class PostCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  HealthBadge(condition: Health.NEW),
+                  HealthBadge(condition: 'New'),
                   Text(
                     'Valencia, Spain',
                     textAlign: TextAlign.end,

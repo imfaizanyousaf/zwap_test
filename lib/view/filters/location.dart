@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/view/components/custom_list.dart';
+import 'package:zwap_test/view/components/locations_list.dart';
 
 class LocationPage extends StatelessWidget {
   @override
@@ -11,14 +11,7 @@ class LocationPage extends StatelessWidget {
         backgroundColor: AppColor.background,
         title: Text('Select Location'),
       ),
-      body: CustomList(items: locations),
+      body: SingleChildScrollView(child: LocationsList()),
     );
   }
 }
-
-List<String> locations = [
-  'Location 1',
-  'Location 2',
-  'Location 3',
-  // Add more categories here
-];

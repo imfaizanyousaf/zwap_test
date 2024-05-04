@@ -107,6 +107,8 @@ class CardList extends StatelessWidget {
             return Center(
                 child: Text(
                     "Error: ${snapshot.error}")); // Display an error message if data fetching fails
+          } else if (snapshot.data!.isEmpty) {
+            return Center(child: Text("No posts available"));
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,

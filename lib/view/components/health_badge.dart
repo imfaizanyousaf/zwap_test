@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:zwap_test/res/health.dart';
+import 'package:zwap_test/model/conditions.dart';
 
 class HealthBadge extends StatelessWidget {
-  final Health condition;
+  final String condition;
 
   HealthBadge({required this.condition});
 
@@ -12,28 +12,23 @@ class HealthBadge extends StatelessWidget {
     String conditionText = '';
     Color badgeColor = Colors.transparent;
 
-    switch (condition) {
-      case Health.NEW:
-        conditionText = 'NEW';
-        badgeColor =
-            Color.fromARGB(255, 158, 241, 193); // Set your color for NEW
-        break;
-      case Health.LIKE_NEW:
-        conditionText = 'LIKE NEW';
-        badgeColor =
-            Color.fromARGB(255, 171, 240, 255); // Set your color for LIKE NEW
-        break;
-      case Health.GOOD:
-        conditionText = 'GOOD';
-        badgeColor =
-            Color.fromARGB(255, 228, 213, 248); // Set your color for GOOD
-        break;
-      case Health.FAIR:
-        conditionText = 'FAIR';
-        badgeColor =
-            Color.fromARGB(255, 254, 227, 186); // Set your color for FAIR
-        break;
+    if (condition == 'New') {
+      conditionText = 'NEW';
+      badgeColor = Color.fromARGB(255, 158, 241, 193); // Set your color for NEW
+    } else if (condition == 'Like New') {
+      conditionText = 'LIKE NEW';
+      badgeColor =
+          Color.fromARGB(255, 171, 240, 255); // Set your color for LIKE NEW
+    } else if (condition == 'Good') {
+      conditionText = 'GOOD';
+      badgeColor =
+          Color.fromARGB(255, 228, 213, 248); // Set your color for GOOD
+    } else if (condition == 'Fair') {
+      conditionText = 'FAIR';
+      badgeColor =
+          Color.fromARGB(255, 254, 227, 186); // Set your color for FAIR
     }
+
     double textWidth = conditionText.length * 8.0;
     return Container(
       width: textWidth + 8,

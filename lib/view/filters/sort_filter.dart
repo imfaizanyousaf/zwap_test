@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/res/health.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/filters/categories.dart';
@@ -104,17 +103,17 @@ class SortFilter extends StatelessWidget {
                   Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: HealthBadge(
-                        condition: Health.GOOD,
+                        condition: 'Good',
                       )),
                   Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: HealthBadge(
-                        condition: Health.FAIR,
+                        condition: 'Fair',
                       )),
                   Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       child: HealthBadge(
-                        condition: Health.NEW,
+                        condition: 'New',
                       )),
                 ],
               ),

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:zwap_test/model/categories.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/view/components/custom_list.dart';
+import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/view/components/categories_list.dart';
 
 class CategoriesPage extends StatelessWidget {
+  Future<List<Categories>> categories = api().getCategories();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,20 +15,6 @@ class CategoriesPage extends StatelessWidget {
           backgroundColor: AppColor.background,
           title: Text('Categories'),
         ),
-        body: SingleChildScrollView(child: CustomList(items: categories)));
+        body: SingleChildScrollView(child: CategoriesList()));
   }
 }
-
-List<String> categories = [
-  'Electronics',
-  'Mobile Phones',
-  'Laptops',
-  'Tablets',
-  'Cameras',
-  'Televisions',
-  'Headphones',
-  'Speakers',
-  'Smart Watches',
-  'Printers',
-  'Accessories'
-];
