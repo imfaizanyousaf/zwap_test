@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/utils/token_manager.dart';
 
 //create user view_model class that uses http package to make a request to the server login api and pass login parameters wrapped in try catch

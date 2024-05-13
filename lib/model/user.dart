@@ -6,11 +6,11 @@ class User {
   DateTime emailVerifiedAt;
   DateTime createdAt;
   DateTime updatedAt;
-  List<dynamic> messages;
-  List<dynamic> notifications;
-  List<dynamic> requests;
-  List<dynamic> posts;
-  List<dynamic> feedbacks;
+  List<dynamic>? messages;
+  List<dynamic>? notifications;
+  List<dynamic>? requests;
+  List<dynamic>? posts;
+  List<dynamic>? feedbacks;
 
   User({
     required this.id,

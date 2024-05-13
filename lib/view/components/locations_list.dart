@@ -33,13 +33,13 @@ class _LocationsListState extends State<LocationsList> {
                 if (category.parentId == null &&
                     _hasChildren(category, snapshot.data!))
                   ExpansionTile(
-                    title: Text(category.name!),
+                    title: Text(category.name),
                     children: [
                       for (var childCategory in snapshot.data!)
                         if (childCategory.parentId == category.id)
                           CheckboxListTile(
                             controlAffinity: ListTileControlAffinity.leading,
-                            title: Text(childCategory.name!),
+                            title: Text(childCategory.name),
                             value: selectedItems.contains(childCategory),
                             onChanged: (value) {
                               setState(() {
@@ -56,7 +56,7 @@ class _LocationsListState extends State<LocationsList> {
                 else
                   CheckboxListTile(
                     controlAffinity: ListTileControlAffinity.leading,
-                    title: Text(category.name!),
+                    title: Text(category.name),
                     value: selectedItems.contains(category),
                     onChanged: (value) {
                       setState(() {

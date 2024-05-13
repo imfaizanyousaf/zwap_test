@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/view/edit_profile.dart';
 
 class ProfileScreen extends StatefulWidget {

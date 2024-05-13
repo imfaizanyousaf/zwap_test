@@ -11,7 +11,6 @@ import 'package:zwap_test/data/firebase_auth/firebaseauth_services.dart';
 import 'package:zwap_test/view/user_auth/signup.dart';
 import 'package:zwap_test/view/components/textFields/outlined.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:zwap_test/view_model/user.dart';
 
 class SignInScreen extends StatefulWidget {
   @override

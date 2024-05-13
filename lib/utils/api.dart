@@ -6,7 +6,6 @@ import 'package:zwap_test/model/conditions.dart';
 import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/utils/dio_interceptor.dart';
-import 'package:zwap_test/utils/token_manager.dart';
 import 'package:http/http.dart' as http;
 
 class api {
@@ -116,14 +115,35 @@ class api {
       final response = await http.get(Uri.parse(apiUrl + "/posts?per-page=10"));
       if (response.statusCode == 200) {
         Map<String, dynamic> responseData = json.decode(response.body);
-        List<dynamic> data = responseData['data'];
+        List<dynamic> data = responseData['data'] as List;
         List<Post> posts = data.map((json) => Post.fromJson(json)).toList();
         return posts;
       } else {
         throw Exception("Failed to load posts ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load posts: $e");
+      throw Exception("Failed to load postss: $e");
+    }
+  }
+
+  Future<List<Post>> searchPosts(String query) async {
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl + "/posts/search"),
+        body: {
+          'query': query,
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = json.decode(response.body);
+        List<dynamic> data = responseData['data'] as List;
+        List<Post> posts = data.map((json) => Post.fromJson(json)).toList();
+        return posts;
+      } else {
+        throw Exception("Failed to search posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to search posts: $e");
     }
   }
 

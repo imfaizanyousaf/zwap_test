@@ -10,6 +10,7 @@ class SearchBox extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      surfaceTintColor: AppColor.background,
       backgroundColor:
           AppColor.background, // You can set the background color here
       elevation: 0, // No shadow

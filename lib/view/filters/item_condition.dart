@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/components/conditions_list.dart';
-import 'package:zwap_test/view/components/health_badge.dart';
 
 class ItemCondition extends StatelessWidget {
   @override

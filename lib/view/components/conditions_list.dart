@@ -40,13 +40,13 @@ class _ConditionsListState extends State<ConditionsList> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0),
                         child:
-                            HealthBadge(condition: snapshot.data![index].name!),
+                            HealthBadge(condition: snapshot.data![index].name),
                       ),
                     ],
                   ),
                   subtitle: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(snapshot.data![index].description!),
+                    child: Text(snapshot.data![index].description),
                   ),
                   value: selectedItems.contains(snapshot.data![index]),
                   onChanged: (value) {

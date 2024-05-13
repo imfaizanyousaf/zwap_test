@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:zwap_test/model/conditions.dart';
 
 class HealthBadge extends StatelessWidget {
   final String condition;

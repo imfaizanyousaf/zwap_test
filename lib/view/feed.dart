@@ -6,7 +6,6 @@ import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/notifications.dart';
 import 'package:zwap_test/view/profile.dart';
-import 'package:zwap_test/view_model/user.dart';
 
 class Feed extends StatelessWidget {
   final int selectedIndex;
@@ -88,7 +87,7 @@ class Feed extends StatelessWidget {
 
 class CardList extends StatelessWidget {
   final String tabTitle;
-  api userViewModel = api();
+  final api userViewModel = api();
 
   CardList({required this.tabTitle});
 

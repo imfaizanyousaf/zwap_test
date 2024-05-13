@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:zwap_test/res/colors/colors.dart';
 
 class NotificationCard extends StatelessWidget {
   final String title;

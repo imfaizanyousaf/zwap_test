@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/chat.dart';
 import 'package:zwap_test/view/components/bottom_nav.dart';
-import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/view/feed.dart';
 import 'package:zwap_test/view/new_post.dart';
 import 'package:zwap_test/view/requests.dart';

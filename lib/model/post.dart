@@ -5,9 +5,9 @@ class Post {
   int id;
   String title;
   String description;
-  int? userId;
+  int userId;
   int conditionId;
-  List<dynamic>? images;
+  List<dynamic> images;
   String status;
   DateTime createdAt;
   DateTime updatedAt;
@@ -19,9 +19,9 @@ class Post {
     required this.id,
     required this.title,
     required this.description,
-    this.userId,
+    required this.userId,
     required this.conditionId,
-    this.images,
+    required this.images,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -37,13 +37,19 @@ class Post {
       description: json['description'],
       userId: json['user_id'],
       conditionId: json['condition_id'],
-      images: json['images'],
+      images: json['images'] != null && json['images'] is List
+          ? List<dynamic>.from(json['images'])
+          : ['https://placehold.co/600x400'],
       status: json['status'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'])
+          : DateTime.now(),
       user: User.fromJson(json['user']),
       condition: Conditions.fromJson(json['condition']),
-      locations: json['locations'],
+      locations: json['locations'] ?? [],
     );
   }
 
