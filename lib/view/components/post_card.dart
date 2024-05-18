@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:zwap_test/model/post.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/product_details.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -148,7 +149,7 @@ class PostCard extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          ProductDetailsScreen()));
+                                          ProductDetailsScreen(post: post)));
                             },
                             child: PageView(
                               // controller: _model.pageViewController ??=
@@ -167,6 +168,8 @@ class PostCard extends StatelessWidget {
                                     } else {
                                       return Center(
                                         child: CircularProgressIndicator(
+                                          backgroundColor: Colors.grey,
+                                          color: AppColor.primary,
                                           value: loadingProgress
                                                       .expectedTotalBytes !=
                                                   null
@@ -192,6 +195,8 @@ class PostCard extends StatelessWidget {
                                     } else {
                                       return Center(
                                         child: CircularProgressIndicator(
+                                          backgroundColor: Colors.grey,
+                                          color: AppColor.primary,
                                           value: loadingProgress
                                                       .expectedTotalBytes !=
                                                   null
@@ -218,6 +223,8 @@ class PostCard extends StatelessWidget {
                                     } else {
                                       return Center(
                                         child: CircularProgressIndicator(
+                                          backgroundColor: Colors.grey,
+                                          color: AppColor.primary,
                                           value: loadingProgress
                                                       .expectedTotalBytes !=
                                                   null

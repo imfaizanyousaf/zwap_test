@@ -6,7 +6,7 @@ import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/filters/categories.dart';
 import 'package:zwap_test/view/filters/item_condition.dart';
-import 'package:zwap_test/view/filters/location.dart';
+import 'package:zwap_test/view/filters/locations.dart';
 
 class EditNewPostScreen extends StatelessWidget {
   final List<String> images = [
@@ -122,8 +122,17 @@ class EditNewPostScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => CategoriesPage()),
-                        );
+                            builder: (context) => CategoriesPage(
+                              initialSelectedItems: [],
+                            ),
+                          ),
+                        ).then((selectedItems) {
+                          // Handle selectedItems here
+                          if (selectedItems != null) {
+                            // Do something with selectedItems
+                            print("Selected items: $selectedItems");
+                          }
+                        });
                       },
                     ),
                     Padding(
@@ -145,7 +154,9 @@ class EditNewPostScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => LocationPage()),
+                              builder: (context) => LocationsPage(
+                                    initialSelectedItems: [],
+                                  )),
                         );
                       },
                     ),
@@ -174,8 +185,17 @@ class EditNewPostScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => ItemCondition()),
-                        );
+                            builder: (context) => ItemCondition(
+                              initialSelectedItems: [],
+                            ),
+                          ),
+                        ).then((selectedItem) {
+                          // Handle selectedItems here
+                          if (selectedItem != null) {
+                            // Do something with selectedItems
+                            print("Selected item Condition: $selectedItem");
+                          }
+                        });
                       },
                     ),
                   ],

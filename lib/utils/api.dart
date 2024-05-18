@@ -126,17 +126,15 @@ class api {
     }
   }
 
-  Future<List<Post>> searchPosts(String query) async {
+  Future<List<Post>> searchPosts(String query, List<String> categories) async {
     try {
       final response = await http.post(
         Uri.parse(apiUrl + "/posts/search"),
-        body: {
-          'query': query,
-        },
+        headers: {"Content-Type": "application/json"}, // Add this line
+        body: jsonEncode({"query": query, "categories": categories}),
       );
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseData = json.decode(response.body);
-        List<dynamic> data = responseData['data'] as List;
+        List<dynamic> data = json.decode(response.body);
         List<Post> posts = data.map((json) => Post.fromJson(json)).toList();
         return posts;
       } else {

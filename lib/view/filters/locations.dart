@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:zwap_test/model/categories.dart';
+import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 
-class CategoriesPage extends StatefulWidget {
+class LocationsPage extends StatefulWidget {
   final List<String> initialSelectedItems; // New parameter
 
-  CategoriesPage({required this.initialSelectedItems}); // Constructor
+  LocationsPage({required this.initialSelectedItems}); // Constructor
 
   @override
-  _CategoriesPageState createState() => _CategoriesPageState();
+  _LocationsPageState createState() => _LocationsPageState();
 }
 
-class _CategoriesPageState extends State<CategoriesPage> {
-  late Future<List<Categories>> _categoriesFuture;
+class _LocationsPageState extends State<LocationsPage> {
+  late Future<List<Locations>> _locationsFuture;
   List<String> selectedItems = [];
 
   @override
   void initState() {
     super.initState();
-    _categoriesFuture = api().getCategories();
+    _locationsFuture = api().getLocations();
     selectedItems = List.from(widget.initialSelectedItems);
   }
 
@@ -42,7 +42,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Yes, Exit'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -56,7 +56,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       backgroundColor: AppColor.background,
       appBar: AppBar(
         backgroundColor: AppColor.background,
-        title: Text('Categories'),
+        title: Text('Locations'),
       ),
       body: PopScope(
         canPop: false,
@@ -69,8 +69,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
             Navigator.pop(context, selectedItems);
           }
         },
-        child: FutureBuilder<List<Categories>>(
-          future: _categoriesFuture,
+        child: FutureBuilder<List<Locations>>(
+          future: _locationsFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -80,27 +80,27 @@ class _CategoriesPageState extends State<CategoriesPage> {
               return SingleChildScrollView(
                 child: Column(
                   children: [
-                    for (var category in snapshot.data!)
-                      if (category.parentId == null &&
-                          _hasChildren(category, snapshot.data!))
+                    for (var location in snapshot.data!)
+                      if (location.parentId == null &&
+                          _hasChildren(location, snapshot.data!))
                         ExpansionTile(
-                          title: Text(category.name!),
+                          title: Text(location.name!),
                           children: [
-                            for (var childCategory in snapshot.data!)
-                              if (childCategory.parentId == category.id)
+                            for (var childlocation in snapshot.data!)
+                              if (childlocation.parentId == location.id)
                                 CheckboxListTile(
                                   controlAffinity:
                                       ListTileControlAffinity.leading,
-                                  title: Text(childCategory.name!),
+                                  title: Text(childlocation.name!),
                                   value: selectedItems
-                                      .contains(childCategory.name),
+                                      .contains(childlocation.name),
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null && value) {
-                                        selectedItems.add(childCategory.name!);
+                                        selectedItems.add(childlocation.name!);
                                       } else {
                                         selectedItems
-                                            .remove(childCategory.name);
+                                            .remove(childlocation.name);
                                       }
                                     });
                                   },
@@ -110,14 +110,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       else
                         CheckboxListTile(
                           controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(category.name!),
-                          value: selectedItems.contains(category.name),
+                          title: Text(location.name!),
+                          value: selectedItems.contains(location.name),
                           onChanged: (value) {
                             setState(() {
                               if (value != null && value) {
-                                selectedItems.add(category.name!);
+                                selectedItems.add(location.name!);
                               } else {
-                                selectedItems.remove(category.name);
+                                selectedItems.remove(location.name);
                               }
                             });
                           },
@@ -131,16 +131,23 @@ class _CategoriesPageState extends State<CategoriesPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          Navigator.pop(context, selectedItems);
+          if (selectedItems == null || selectedItems.isEmpty) {
+            final bool? shouldPop = await _showExitDialog();
+            if (shouldPop ?? false) {
+              Navigator.of(context).pop(selectedItems);
+            }
+          } else {
+            Navigator.pop(context, selectedItems);
+          }
         },
-        child: Icon(Icons.check, color: AppColor.background),
-        backgroundColor: AppColor.primary,
+        child: Icon(Icons.check),
+        backgroundColor: Colors.blue,
       ),
     );
   }
 
-  // Helper function to check if a category has children
-  bool _hasChildren(Categories category, List<Categories> categories) {
-    return categories.any((child) => child.parentId == category.id);
+  // Helper function to check if a location has children
+  bool _hasChildren(Locations location, List<Locations> locations) {
+    return locations.any((child) => child.parentId == location.id);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:zwap_test/model/conditions.dart';
+import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/user.dart';
 
 class Post {
@@ -13,7 +14,7 @@ class Post {
   DateTime updatedAt;
   User user;
   Conditions condition;
-  List<dynamic> locations;
+  Locations? locations;
 
   Post({
     required this.id,
@@ -27,7 +28,7 @@ class Post {
     required this.updatedAt,
     required this.user,
     required this.condition,
-    required this.locations,
+    locations,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
