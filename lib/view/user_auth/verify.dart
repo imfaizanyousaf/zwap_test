@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/global/commons/toast.dart';
@@ -23,11 +22,11 @@ class _VerifyScreenState extends State<VerifyScreen> {
     super.initState();
 
     // Automatically send the email verification link the first time
-    _sendEmailVerification();
+    // _sendEmailVerification();
 
     // Start a periodic timer to check email verification status every 3 seconds
     _timer = Timer.periodic(Duration(seconds: 3), (timer) {
-      _checkVerificationStatus();
+      // _checkVerificationStatus();
     });
 
     // Set a timer to enable the button after 60 seconds
@@ -44,30 +43,30 @@ class _VerifyScreenState extends State<VerifyScreen> {
     });
   }
 
-  Future<void> _sendEmailVerification() async {
-    await FirebaseAuth.instance.currentUser!.sendEmailVerification();
-  }
+  // Future<void> _sendEmailVerification() async {
+  //   await FirebaseAuth.instance.currentUser!.sendEmailVerification();
+  // }
 
-  Future<void> _checkVerificationStatus() async {
-    try {
-      await FirebaseAuth.instance.currentUser!.reload();
-    } on FirebaseAuthException catch (e) {
-      print("${e.code}");
-    }
+  // Future<void> _checkVerificationStatus() async {
+  //   try {
+  //     await FirebaseAuth.instance.currentUser!.reload();
+  //   } on FirebaseAuthException catch (e) {
+  //     print("${e.code}");
+  //   }
 
-    if (FirebaseAuth.instance.currentUser!.emailVerified) {
-      // Stop the timer if email is verified
-      _timer.cancel();
+  //   if (FirebaseAuth.instance.currentUser!.emailVerified) {
+  //     // Stop the timer if email is verified
+  //     _timer.cancel();
 
-      // Navigate to the next screen or perform further actions
-      showToast(message: 'Email verified successfully!');
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
-        (Route route) => false,
-      );
-    }
-  }
+  //     // Navigate to the next screen or perform further actions
+  //     showToast(message: 'Email verified successfully!');
+  //     // Navigator.pushAndRemoveUntil(
+  //     //   context,
+  //     //   MaterialPageRoute(builder: (context) => HomeScreen()),
+  //     //   (Route route) => false,
+  //     // );
+  //   }
+  // }
 
   void _handleResendButton() {
     if (!isResendButtonDisabled) {
@@ -95,7 +94,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
       });
 
       // Resend the email verification link
-      _sendEmailVerification();
+      // _sendEmailVerification();
     }
   }
 
@@ -137,7 +136,8 @@ class _VerifyScreenState extends State<VerifyScreen> {
                 )),
             SizedBox(height: 8),
             Text(
-              FirebaseAuth.instance.currentUser!.email!,
+              "",
+              // FirebaseAuth.instance.currentUser!.email!,
               style: GoogleFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

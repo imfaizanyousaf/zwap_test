@@ -1,14 +1,30 @@
 // This screen is used to edit a new post
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/global/commons/toast.dart';
+import 'package:zwap_test/model/categories.dart';
+import 'package:zwap_test/model/conditions.dart';
+import 'package:zwap_test/model/locations.dart';
+import 'package:zwap_test/model/post.dart';
+import 'package:zwap_test/model/user.dart';
+import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/filters/categories.dart';
 import 'package:zwap_test/view/filters/item_condition.dart';
 import 'package:zwap_test/view/filters/locations.dart';
 
-class EditNewPostScreen extends StatelessWidget {
+class EditNewPostScreen extends StatefulWidget {
+  final User currentUser;
+  EditNewPostScreen({required this.currentUser});
+  @override
+  State<EditNewPostScreen> createState() => _EditNewPostScreenState();
+}
+
+class _EditNewPostScreenState extends State<EditNewPostScreen> {
+  api _api = api();
   final List<String> images = [
     'https://picsum.photos/856/600',
     'https://picsum.photos/856/600',
@@ -16,6 +32,16 @@ class EditNewPostScreen extends StatelessWidget {
     'https://picsum.photos/856/600',
     'https://picsum.photos/856/600',
   ];
+
+  List<Categories> selectedCategories = [];
+
+  List<Locations> selectedLocations = [];
+
+  List<Conditions> selectedConditions = [];
+
+  TextEditingController titleController = TextEditingController();
+  TextEditingController descController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,6 +117,7 @@ class EditNewPostScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
+                      controller: titleController,
                       decoration: InputDecoration(
                         labelText: 'Title',
                       ),
@@ -99,6 +126,9 @@ class EditNewPostScreen extends StatelessWidget {
                       textInputAction: TextInputAction.newline,
                     ),
                     TextField(
+                      inputFormatters: [LengthLimitingTextInputFormatter(200)],
+                      maxLines: null,
+                      controller: descController,
                       decoration: InputDecoration(
                         labelText: 'Description',
                       ),
@@ -114,24 +144,33 @@ class EditNewPostScreen extends StatelessWidget {
                     ),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Text('Electronics and 2 more',
-                          style: GoogleFonts.manrope(
-                              fontSize: 16, color: Colors.black)),
+                      title: selectedCategories.isEmpty
+                          ? Text('Select Category')
+                          : Text(
+                              overflow: TextOverflow.fade,
+                              selectedCategories.map((e) => e.name).join(', '),
+                              style: GoogleFonts.manrope(
+                                  fontSize: 16, color: Colors.black)),
                       trailing: Icon(Icons.arrow_right),
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        // Perform asynchronous work
+                        List<Categories> result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => CategoriesPage(
-                              initialSelectedItems: [],
+                              initialSelectedItems: selectedCategories.isEmpty
+                                  ? []
+                                  : selectedCategories
+                                      .map((e) => e.name!)
+                                      .toList(),
+                              returnCategories: true,
                             ),
                           ),
-                        ).then((selectedItems) {
-                          // Handle selectedItems here
-                          if (selectedItems != null) {
-                            // Do something with selectedItems
-                            print("Selected items: $selectedItems");
-                          }
+                        );
+
+                        // Update the state after the asynchronous work is done
+                        setState(() {
+                          selectedCategories = result;
                         });
                       },
                     ),
@@ -146,18 +185,34 @@ class EditNewPostScreen extends StatelessWidget {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: Icon(Icons.location_on_outlined),
-                      title: Text('Rawalpindi, Pakistan',
-                          style: GoogleFonts.manrope(
-                              fontSize: 16, color: Colors.black)),
+                      title: selectedLocations.isEmpty
+                          ? Text('Select Location')
+                          : Text(
+                              overflow: TextOverflow.fade,
+                              selectedLocations.map((e) => e.name).join(', '),
+                              style: GoogleFonts.manrope(
+                                  fontSize: 16, color: Colors.black)),
                       trailing: Icon(Icons.arrow_right),
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        // Perform asynchronous work
+                        List<Locations> result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => LocationsPage(
-                                    initialSelectedItems: [],
-                                  )),
+                            builder: (context) => LocationsPage(
+                              initialSelectedItems: selectedLocations.isEmpty
+                                  ? []
+                                  : selectedLocations
+                                      .map((e) => e.name!)
+                                      .toList(),
+                              returnLocations: true,
+                            ),
+                          ),
                         );
+
+                        // Update the state after the asynchronous work is done
+                        setState(() {
+                          selectedLocations = result;
+                        });
                       },
                     ),
                     Padding(
@@ -170,31 +225,43 @@ class EditNewPostScreen extends StatelessWidget {
                     ),
                     ListTile(
                       contentPadding: EdgeInsets.zero,
-                      title: Row(
-                        children: [
-                          Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4.0),
-                              child: HealthBadge(
-                                condition: 'Good',
-                              )),
-                        ],
-                      ),
+                      title: selectedConditions.isEmpty
+                          ? Text('Select Condition')
+                          : Row(
+                              children: [
+                                Expanded(
+                                  child: Wrap(
+                                    spacing: 4.0, // gap between adjacent items
+                                    runSpacing: 4.0, // gap between lines
+                                    children:
+                                        selectedConditions.map((condition) {
+                                      return HealthBadge(
+                                          condition: condition.name);
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
                       trailing: Icon(Icons.arrow_right),
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        // Perform asynchronous work
+                        var result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ItemCondition(
-                              initialSelectedItems: [],
-                            ),
-                          ),
-                        ).then((selectedItem) {
-                          // Handle selectedItems here
-                          if (selectedItem != null) {
-                            // Do something with selectedItems
-                            print("Selected item Condition: $selectedItem");
-                          }
+                              builder: (context) => ItemCondition(
+                                    initialSelectedItems:
+                                        selectedConditions.isEmpty
+                                            ? []
+                                            : selectedConditions
+                                                .map((e) => e.name)
+                                                .toList(),
+                                    returnConditions: true,
+                                  )),
+                        );
+
+                        // Update the state after the asynchronous work is done
+                        setState(() {
+                          selectedConditions = result;
                         });
                       },
                     ),
@@ -210,8 +277,70 @@ class EditNewPostScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: PrimaryLarge(
             text: 'Post',
-            onPressed: () {
-              // Add your logic here
+            onPressed: () async {
+              if (titleController.text.isNotEmpty &&
+                  descController.text.isNotEmpty &&
+                  selectedCategories.isNotEmpty &&
+                  selectedLocations.isNotEmpty &&
+                  selectedConditions.isNotEmpty) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(width: 16),
+                            Text("Posting..."),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+                Post newPost = Post(
+                    title: titleController.text,
+                    description: descController.text,
+                    userId: widget.currentUser.id,
+                    conditionId: selectedConditions[0].id,
+                    publishedAt: DateTime.now(),
+                    published: true,
+                    user: widget.currentUser,
+                    condition: selectedConditions[0],
+                    locations: selectedLocations,
+                    categories: selectedCategories);
+                String response = await _api.addPost(newPost);
+                if (response == '200') {
+                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Post Created Successfully'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Done'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else {
+                  showToast(message: 'Failed to create post $response');
+                }
+              } else {
+                showToast(
+                  message: "Please provide all the deatils",
+                );
+              }
             },
           ),
         ),

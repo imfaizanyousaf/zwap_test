@@ -5,8 +5,12 @@ import 'package:zwap_test/utils/api.dart';
 
 class LocationsPage extends StatefulWidget {
   final List<String> initialSelectedItems; // New parameter
+  final bool returnLocations; // New parameter
 
-  LocationsPage({required this.initialSelectedItems}); // Constructor
+  LocationsPage({
+    required this.initialSelectedItems,
+    this.returnLocations = false, // Default value set to false
+  }); // Constructor
 
   @override
   _LocationsPageState createState() => _LocationsPageState();
@@ -14,13 +18,26 @@ class LocationsPage extends StatefulWidget {
 
 class _LocationsPageState extends State<LocationsPage> {
   late Future<List<Locations>> _locationsFuture;
-  List<String> selectedItems = [];
+  List<dynamic> selectedItems = [];
 
   @override
   void initState() {
     super.initState();
     _locationsFuture = api().getLocations();
-    selectedItems = List.from(widget.initialSelectedItems);
+    if (widget.returnLocations) {
+      setInitialLocations();
+    } else {
+      selectedItems = List.from(widget.initialSelectedItems);
+    }
+  }
+
+  setInitialLocations() async {
+    selectedItems = await _locationsFuture.then(
+      (value) => value
+          .where(
+              (location) => widget.initialSelectedItems.contains(location.name))
+          .toList(),
+    );
   }
 
   Future<bool?> _showExitDialog() {
@@ -28,7 +45,7 @@ class _LocationsPageState extends State<LocationsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Exit'),
+          title: const Text('Discard Selection?'),
           content: const Text(
               'Are you sure you want to exit without selecting any items?'),
           actions: <Widget>[
@@ -64,9 +81,17 @@ class _LocationsPageState extends State<LocationsPage> {
           if (didPop) {
             return;
           }
-          final bool shouldPop = await _showExitDialog() ?? false;
+          bool shouldPop = true;
+          if (selectedItems.isNotEmpty) {
+            shouldPop = await _showExitDialog() ?? false;
+          }
           if (context.mounted && shouldPop) {
-            Navigator.pop(context, selectedItems);
+            Navigator.pop(
+              context,
+              widget.returnLocations
+                  ? (selectedItems.map((item) => item as Locations).toList())
+                  : selectedItems.map((e) => e.toString()).toList(),
+            );
           }
         },
         child: FutureBuilder<List<Locations>>(
@@ -81,43 +106,90 @@ class _LocationsPageState extends State<LocationsPage> {
                 child: Column(
                   children: [
                     for (var location in snapshot.data!)
-                      if (location.parentId == null &&
-                          _hasChildren(location, snapshot.data!))
-                        ExpansionTile(
-                          title: Text(location.name!),
-                          children: [
-                            for (var childlocation in snapshot.data!)
-                              if (childlocation.parentId == location.id)
-                                CheckboxListTile(
-                                  controlAffinity:
-                                      ListTileControlAffinity.leading,
-                                  title: Text(childlocation.name!),
-                                  value: selectedItems
-                                      .contains(childlocation.name),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value != null && value) {
-                                        selectedItems.add(childlocation.name!);
-                                      } else {
-                                        selectedItems
-                                            .remove(childlocation.name);
-                                      }
-                                    });
-                                  },
+                      if (location.parentId == null)
+                        _hasChildren(location, snapshot.data!)
+                            ? ExpansionTile(
+                                title: Text(location.name),
+                                children: [
+                                  for (var childLocation in snapshot.data!)
+                                    if (childLocation.parentId == location.id)
+                                      CheckboxListTile(
+                                        controlAffinity:
+                                            ListTileControlAffinity.leading,
+                                        title: Text(childLocation.name),
+                                        value: selectedItems.contains(
+                                          widget.returnLocations
+                                              ? childLocation
+                                              : childLocation.name,
+                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            if (value != null && value) {
+                                              selectedItems.add(
+                                                widget.returnLocations
+                                                    ? childLocation
+                                                    : childLocation.name,
+                                              );
+                                            } else {
+                                              selectedItems.remove(
+                                                widget.returnLocations
+                                                    ? childLocation
+                                                    : childLocation.name,
+                                              );
+                                            }
+                                          });
+                                        },
+                                      ),
+                                ],
+                              )
+                            : CheckboxListTile(
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
+                                title: Text(location.name),
+                                value: selectedItems.contains(
+                                  widget.returnLocations
+                                      ? location
+                                      : location.name,
                                 ),
-                          ],
-                        )
-                      else
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value != null && value) {
+                                      selectedItems.add(
+                                        widget.returnLocations
+                                            ? location
+                                            : location.name,
+                                      );
+                                    } else {
+                                      selectedItems.remove(
+                                        widget.returnLocations
+                                            ? location
+                                            : location.name,
+                                      );
+                                    }
+                                  });
+                                },
+                              )
+                      else if (!_hasParent(location, snapshot.data!))
                         CheckboxListTile(
                           controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(location.name!),
-                          value: selectedItems.contains(location.name),
+                          title: Text(location.name),
+                          value: selectedItems.contains(
+                            widget.returnLocations ? location : location.name,
+                          ),
                           onChanged: (value) {
                             setState(() {
                               if (value != null && value) {
-                                selectedItems.add(location.name!);
+                                selectedItems.add(
+                                  widget.returnLocations
+                                      ? location
+                                      : location.name,
+                                );
                               } else {
-                                selectedItems.remove(location.name);
+                                selectedItems.remove(
+                                  widget.returnLocations
+                                      ? location
+                                      : location.name,
+                                );
                               }
                             });
                           },
@@ -129,25 +201,32 @@ class _LocationsPageState extends State<LocationsPage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          if (selectedItems == null || selectedItems.isEmpty) {
-            final bool? shouldPop = await _showExitDialog();
-            if (shouldPop ?? false) {
-              Navigator.of(context).pop(selectedItems);
-            }
-          } else {
-            Navigator.pop(context, selectedItems);
-          }
-        },
-        child: Icon(Icons.check),
-        backgroundColor: Colors.blue,
-      ),
+      floatingActionButton: selectedItems.isNotEmpty
+          ? FloatingActionButton(
+              onPressed: () async {
+                Navigator.pop(
+                  context,
+                  widget.returnLocations
+                      ? (selectedItems
+                          .map((item) => item as Locations)
+                          .toList())
+                      : selectedItems.map((e) => e.toString()).toList(),
+                );
+              },
+              child: Icon(Icons.check, color: AppColor.background),
+              backgroundColor: AppColor.primary,
+            )
+          : null,
     );
   }
 
   // Helper function to check if a location has children
-  bool _hasChildren(Locations location, List<Locations> locations) {
-    return locations.any((child) => child.parentId == location.id);
+
+  bool _hasParent(location, List<Locations> allLocations) {
+    return allLocations.any((loc) => loc.id == location.parentId);
+  }
+
+  bool _hasChildren(location, List<Locations> allLocations) {
+    return allLocations.any((loc) => loc.parentId == location.id);
   }
 }

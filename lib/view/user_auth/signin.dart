@@ -1,13 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/utils/connection.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/view/home.dart';
-import 'package:zwap_test/data/firebase_auth/firebaseauth_services.dart';
 import 'package:zwap_test/view/user_auth/signup.dart';
 import 'package:zwap_test/view/components/textFields/outlined.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,6 +22,12 @@ class _SignInScreenState extends State<SignInScreen> {
   final api user_auth = api();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  @override
+  void initState() {
+    _emailController..text = "yousafmughal477@example.com";
+    _passwordController..text = "newpassword";
+    super.initState();
+  }
 
   bool isSigning = false;
   bool _validEmail = true;
@@ -125,12 +131,18 @@ class _SignInScreenState extends State<SignInScreen> {
                   height: 16,
                 ),
                 PrimaryLarge(
-                  text: 'Sign In',
-                  loading: isSigning,
-                  onPressed: () {
-                    _signIn(context);
-                  },
-                ),
+                    text: 'Sign In',
+                    loading: isSigning,
+                    onPressed: () async {
+                      bool connected = await isConnected();
+
+                      if (!connected) {
+                        showToast(message: "No internet connection");
+                      } else {
+                        print(connected);
+                        _signIn(context);
+                      }
+                    }),
                 SizedBox(
                   height: 16,
                 ),
@@ -185,21 +197,25 @@ class _SignInScreenState extends State<SignInScreen> {
     String password = _passwordController.text;
 
     // User? user = await _auth.sigInWithEmailAndPassword(email, password);
-    String user = await user_auth.login(email, password);
+    String login = await user_auth.login(email, password);
 
-    setState(() {
-      isSigning = false;
-    });
-    if (user == 'Success') {
+    if (login == 'OK') {
+      User _currentUser = await user_auth.getUser(null);
       showToast(message: 'Login Successful');
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(
+            builder: (context) => HomeScreen(
+                  currentUser: _currentUser,
+                )),
         (Route route) => false,
       );
     } else {
-      showToast(message: '$user');
+      showToast(message: '$login');
     }
+    setState(() {
+      isSigning = false;
+    });
   }
 
   void isEmailValid() {

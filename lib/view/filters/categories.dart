@@ -4,9 +4,13 @@ import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 
 class CategoriesPage extends StatefulWidget {
-  final List<String> initialSelectedItems; // New parameter
+  final List<String> initialSelectedItems;
+  final bool returnCategories; // New parameter
 
-  CategoriesPage({required this.initialSelectedItems}); // Constructor
+  CategoriesPage({
+    required this.initialSelectedItems,
+    this.returnCategories = false, // Default value set to false
+  });
 
   @override
   _CategoriesPageState createState() => _CategoriesPageState();
@@ -14,13 +18,27 @@ class CategoriesPage extends StatefulWidget {
 
 class _CategoriesPageState extends State<CategoriesPage> {
   late Future<List<Categories>> _categoriesFuture;
-  List<String> selectedItems = [];
+  List<dynamic> selectedItems = []; // Changed to dynamic type
 
   @override
   void initState() {
     super.initState();
     _categoriesFuture = api().getCategories();
-    selectedItems = List.from(widget.initialSelectedItems);
+
+    if (widget.returnCategories) {
+      setInitialCategories();
+    } else {
+      selectedItems = List.from(widget.initialSelectedItems);
+    }
+  }
+
+  setInitialCategories() async {
+    selectedItems = await _categoriesFuture.then(
+      (value) => value
+          .where(
+              (category) => widget.initialSelectedItems.contains(category.name))
+          .toList(),
+    );
   }
 
   Future<bool?> _showExitDialog() {
@@ -28,7 +46,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Exit'),
+          title: const Text('Discard Selection?'),
           content: const Text(
               'Are you sure you want to exit without selecting any items?'),
           actions: <Widget>[
@@ -64,9 +82,17 @@ class _CategoriesPageState extends State<CategoriesPage> {
           if (didPop) {
             return;
           }
-          final bool shouldPop = await _showExitDialog() ?? false;
+          bool shouldPop = true;
+          if (selectedItems.isNotEmpty) {
+            shouldPop = await _showExitDialog() ?? false;
+          }
           if (context.mounted && shouldPop) {
-            Navigator.pop(context, selectedItems);
+            Navigator.pop(
+              context,
+              widget.returnCategories
+                  ? (selectedItems.map((item) => item as Categories).toList())
+                  : selectedItems.map((e) => e.toString()).toList(),
+            );
           }
         },
         child: FutureBuilder<List<Categories>>(
@@ -92,15 +118,25 @@ class _CategoriesPageState extends State<CategoriesPage> {
                                   controlAffinity:
                                       ListTileControlAffinity.leading,
                                   title: Text(childCategory.name!),
-                                  value: selectedItems
-                                      .contains(childCategory.name),
+                                  value: selectedItems.contains(
+                                    widget.returnCategories
+                                        ? childCategory
+                                        : childCategory.name,
+                                  ),
                                   onChanged: (value) {
                                     setState(() {
                                       if (value != null && value) {
-                                        selectedItems.add(childCategory.name!);
+                                        selectedItems.add(
+                                          widget.returnCategories
+                                              ? childCategory
+                                              : childCategory.name!,
+                                        );
                                       } else {
-                                        selectedItems
-                                            .remove(childCategory.name);
+                                        selectedItems.remove(
+                                          widget.returnCategories
+                                              ? childCategory
+                                              : childCategory.name,
+                                        );
                                       }
                                     });
                                   },
@@ -111,13 +147,23 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         CheckboxListTile(
                           controlAffinity: ListTileControlAffinity.leading,
                           title: Text(category.name!),
-                          value: selectedItems.contains(category.name),
+                          value: selectedItems.contains(
+                            widget.returnCategories ? category : category.name,
+                          ),
                           onChanged: (value) {
                             setState(() {
                               if (value != null && value) {
-                                selectedItems.add(category.name!);
+                                selectedItems.add(
+                                  widget.returnCategories
+                                      ? category
+                                      : category.name!,
+                                );
                               } else {
-                                selectedItems.remove(category.name);
+                                selectedItems.remove(
+                                  widget.returnCategories
+                                      ? category
+                                      : category.name,
+                                );
                               }
                             });
                           },
@@ -129,17 +175,26 @@ class _CategoriesPageState extends State<CategoriesPage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Navigator.pop(context, selectedItems);
-        },
-        child: Icon(Icons.check, color: AppColor.background),
-        backgroundColor: AppColor.primary,
-      ),
+      floatingActionButton: selectedItems.isEmpty
+          ? null
+          : FloatingActionButton(
+              onPressed: () async {
+                // Adjusted the return value based on the returnCategories parameter
+                Navigator.pop(
+                  context,
+                  widget.returnCategories
+                      ? (selectedItems
+                          .map((item) => item as Categories)
+                          .toList())
+                      : selectedItems.map((e) => e.toString()).toList(),
+                );
+              },
+              child: Icon(Icons.check, color: AppColor.background),
+              backgroundColor: AppColor.primary,
+            ),
     );
   }
 
-  // Helper function to check if a category has children
   bool _hasChildren(Categories category, List<Categories> categories) {
     return categories.any((child) => child.parentId == category.id);
   }

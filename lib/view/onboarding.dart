@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/utils/connection.dart';
 import 'package:zwap_test/view/home.dart';
 import 'package:zwap_test/view/user_auth/signin.dart';
 import 'package:zwap_test/view/user_auth/signup.dart';
@@ -59,14 +61,20 @@ class OnboardingScreen extends StatelessWidget {
                                           MaterialStateProperty.all(
                                               Colors.white),
                                     ),
-                                    onPressed: () {
-                                      Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SignUpScreen()),
-                                        (route) => false,
-                                      );
+                                    onPressed: () async {
+                                      bool connected = await isConnected();
+                                      if (connected) {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SignUpScreen()),
+                                          (route) => false,
+                                        );
+                                      } else {
+                                        showToast(
+                                            message: 'No internet connection');
+                                      }
                                     },
                                     child: Text("Join Now")),
                               ),
@@ -90,14 +98,20 @@ class OnboardingScreen extends StatelessWidget {
                                             MaterialStateProperty.all(AppColor
                                                 .secondaryDark
                                                 .withOpacity(.5))),
-                                    onPressed: () {
-                                      Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SignInScreen()),
-                                        (route) => false,
-                                      );
+                                    onPressed: () async {
+                                      bool connected = await isConnected();
+                                      if (connected) {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SignInScreen()),
+                                          (route) => false,
+                                        );
+                                      } else {
+                                        showToast(
+                                            message: 'No internet connection');
+                                      }
                                     },
                                     child: Text("Login")),
                               ),
@@ -119,12 +133,12 @@ class OnboardingScreen extends StatelessWidget {
                                               AppColor.primary),
                                     ),
                                     onPressed: () {
-                                      Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => HomeScreen()),
-                                        (route) => false,
-                                      );
+                                      // Navigator.pushAndRemoveUntil(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //       builder: (context) => HomeScreen()),
+                                      //   (route) => false,
+                                      // );
                                     },
                                     child: Text("Guest Mode")),
                               ),

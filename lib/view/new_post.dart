@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/edit_new_post.dart';
 
 class NewPostScreen extends StatelessWidget {
+  final User currentUser;
+
+  NewPostScreen({required this.currentUser});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +56,9 @@ class NewPostScreen extends StatelessWidget {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditNewPostScreen(),
+                            builder: (context) => EditNewPostScreen(
+                              currentUser: currentUser,
+                            ),
                           ));
                     },
                   ),

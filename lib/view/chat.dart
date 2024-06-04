@@ -26,10 +26,10 @@ class ChatScreen extends StatelessWidget {
           builder: (BuildContext context) {
             return GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfileScreen()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (context) => ProfileScreen()),
+                // );
               },
               child: Container(
                 margin: EdgeInsets.all(12),

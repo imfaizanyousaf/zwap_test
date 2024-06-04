@@ -1,16 +1,125 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/global/commons/toast.dart';
+import 'package:zwap_test/model/post.dart';
+import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/utils/number_formater.dart';
+import 'package:zwap_test/utils/token_manager.dart';
+import 'package:zwap_test/view/add_interests.dart';
+import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/view/edit_profile.dart';
+import 'package:zwap_test/view/filters/categories.dart';
+import 'package:zwap_test/view/user_auth/signin.dart';
 
 class ProfileScreen extends StatefulWidget {
+  User currentUser;
+  User? loggedInUser;
+  List<User> follwedBy = [];
+  List<User> following = [];
+  List<User> loggedInUserFollowing = [];
+  List<User> loggedInUserFollowedBy = [];
+
+  ProfileScreen({required this.currentUser});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Track the selected icon index
+  List<Post> favPosts = [];
+  bool isFollowing = false;
+  List<Post> posts = [];
+
+  Future<void> _fetchUserData() async {
+    _showLoadingDialog();
+    try {
+      api _api = api();
+      bool tempIsFollowing = false;
+      User user = await _api.getUser(widget.currentUser.id);
+      List<Post> userPosts = await _api.getPostsByUser(user.id);
+      User tempUser = await _api.getUser(null);
+      List<Post> tempFavPosts = await _api.getFavPosts(widget.currentUser.id);
+      posts = userPosts;
+      print(jsonEncode(posts));
+      List<User> tempFollowedBy =
+          await _api.getFollowedBy(widget.currentUser.id);
+      List<User> tempFollowing = await _api.getFollowing(widget.currentUser.id);
+
+      List<User> tempLoggedInFollowing = await _api.getFollowing(tempUser.id);
+      List<User> tempLoggedInFollowedBy = await _api.getFollowedBy(tempUser.id);
+
+      List<int> tempLoggedInFollowingIds =
+          tempLoggedInFollowing.map((e) => e.id).toList();
+
+      if (tempLoggedInFollowingIds != [] &&
+          tempLoggedInFollowingIds.contains(widget.currentUser.id)) {
+        tempIsFollowing = true;
+      } else {
+        tempIsFollowing = false;
+      }
+
+      if (mounted) {
+        setState(() {
+          widget.currentUser = user;
+          posts = userPosts;
+          widget.loggedInUser = tempUser;
+          favPosts = tempFavPosts;
+
+          widget.follwedBy = tempFollowedBy;
+          widget.following = tempFollowing;
+
+          isFollowing = tempIsFollowing;
+        });
+      }
+    } catch (e) {
+      // Handle errors here, e.g., show an error message
+      print("Error fetching user data: $e");
+    } finally {
+      // Ensure the loading dialog is closed
+      Navigator.pop(context);
+    }
+  }
+
+  void _showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            content: Container(
+          height: 100,
+          width: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(
+                color: AppColor.primary,
+              ),
+            ],
+          ),
+        ));
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchUserData();
+    });
+  }
+
   int selectedIconIndex = 0;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,50 +130,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
           slivers: <Widget>[
             SliverAppBar(
               actions: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(100),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          child: Container(
-                            child: Wrap(
-                              children: <Widget>[
-                                ListTile(
-                                  leading: Icon(Icons.favorite_border_rounded),
-                                  title: Text('Add to favorites'),
-                                  onTap: () => {},
-                                ),
-                                ListTile(
-                                  leading: Icon(Icons.copy),
-                                  title: Text('Copy Link'),
-                                  onTap: () => {},
-                                ),
-                                ListTile(
-                                  leading: Icon(
-                                    Icons.flag_outlined,
-                                    color: Colors.red,
+                (widget.loggedInUser != null &&
+                        widget.currentUser.id == widget.loggedInUser!.id)
+                    ? InkWell(
+                        borderRadius: BorderRadius.circular(100),
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16.0),
+                                child: Container(
+                                  child: Wrap(
+                                    children: <Widget>[
+                                      ListTile(
+                                        leading:
+                                            Icon(Icons.favorite_border_rounded),
+                                        title: Text('Edit Interests'),
+                                        onTap: () => {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AddInterestsScreen(
+                                                        previousScreen:
+                                                            'ProfileScreen',
+                                                      )))
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: Icon(Icons.copy),
+                                        title: Text('Edit Meeting Venues'),
+                                        onTap: () => {},
+                                      ),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.logout_outlined,
+                                          color: Colors.red,
+                                        ),
+                                        title: Text(
+                                          'Log Out',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                        onTap: () => {
+                                          //Logout by calling the logout function in api.dart
+                                          _logout()
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  title: Text(
-                                    'Report',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                  onTap: () => {},
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Icon(Icons.more_horiz),
-                  ),
-                )
+                              );
+                            },
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Icon(Icons.more_horiz),
+                        ),
+                      )
+                    : Container()
               ],
               backgroundColor: AppColor.background,
               surfaceTintColor: AppColor.background,
@@ -94,8 +220,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 CircleAvatar(
                                   radius: 28,
-                                  backgroundImage:
-                                      AssetImage('assets/avatar.jpg'),
+                                  backgroundImage: widget.loggedInUser != null
+                                      ? NetworkImage(
+                                          widget.loggedInUser!.logo ??
+                                              'https://avatar.iran.liara.run/username?username=${widget.loggedInUser!.firstName}+${widget.loggedInUser!.lastName}',
+                                        )
+                                      : NetworkImage(
+                                          'https://avatar.iran.liara.run/username?username=${widget.currentUser.firstName}+${widget.currentUser.lastName}',
+                                        ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 8.0),
@@ -104,7 +236,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text('Faizan Yousaf',
+                                      Text(
+                                          widget.currentUser.firstName +
+                                              " " +
+                                              widget.currentUser.lastName,
                                           style: GoogleFonts.getFont(
                                             "Manrope",
                                             textStyle: TextStyle(
@@ -137,34 +272,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   foregroundColor:
                                       MaterialStateProperty.all<Color>(
                                           AppColor.primary)),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          EditProfileScreen()),
-                                );
+                              onPressed: () async {
+                                if (widget.loggedInUser != null &&
+                                    widget.currentUser.id ==
+                                        widget.loggedInUser!.id) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            EditProfileScreen()),
+                                  );
+                                } else {
+                                  api _api = api();
+                                  List<int> followingIds = widget
+                                      .loggedInUserFollowing
+                                      .map((e) => e.id)
+                                      .toList();
+
+                                  List<int> followedIds = widget.follwedBy
+                                      .map((e) => e.id)
+                                      .toList();
+
+                                  if (isFollowing) {
+                                    followingIds.remove(widget.currentUser.id);
+                                    widget.loggedInUserFollowing
+                                        .remove(widget.currentUser);
+                                    String response = '0';
+                                    if (widget.loggedInUser != null) {
+                                      response = await _api.addFollowing(
+                                          widget.loggedInUser!.id,
+                                          followingIds);
+                                    }
+                                    followedIds.remove(widget.loggedInUser!.id);
+                                    String response2 = await _api.addFollowedBy(
+                                        widget.currentUser.id, followedIds);
+                                    if (response == '200' &&
+                                        response2 == '200') {
+                                      setState(() {
+                                        widget.follwedBy
+                                            .remove(widget.loggedInUser!);
+
+                                        isFollowing = false;
+                                      });
+                                    }
+                                  } else {
+                                    followingIds.add(widget.currentUser.id);
+                                    widget.loggedInUserFollowing
+                                        .remove(widget.currentUser);
+                                    String response = '0';
+                                    if (widget.loggedInUser != null) {
+                                      response = await _api.addFollowing(
+                                          widget.loggedInUser!.id,
+                                          followingIds);
+                                    }
+                                    followedIds.add(widget.loggedInUser!.id);
+                                    String response2 = await _api.addFollowedBy(
+                                        widget.currentUser.id, followedIds);
+                                    if (response == '200' &&
+                                        response2 == '200') {
+                                      setState(() {
+                                        widget.follwedBy
+                                            .add(widget.loggedInUser!);
+                                        isFollowing = true;
+                                      });
+                                    }
+                                  }
+                                }
                               },
-                              child: Text(
-                                'Follow',
-                              ),
+                              child: (widget.loggedInUser != null)
+                                  ? (widget.currentUser.id ==
+                                          widget.loggedInUser!.id)
+                                      ? Text(
+                                          'Edit Profile',
+                                        )
+                                      : isFollowing
+                                          ? Text(
+                                              'Following',
+                                            )
+                                          : Text(
+                                              'Follow',
+                                            )
+                                  : Text(''),
                             ),
                           ],
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Text('Rawalpindi, Pakistan',
-                              style: GoogleFonts.manrope(
-                                textStyle: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.6,
-                                  letterSpacing: 0.150000006,
-                                  color: Color.fromARGB(255, 71, 71, 71),
-                                ),
-                              )),
-                        ],
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -173,7 +364,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Column(
                               children: [
-                                Text('1.2k',
+                                Text(
+                                    NumberFormatter.format(
+                                        widget.follwedBy.length),
                                     style: GoogleFonts.manrope(
                                       textStyle: TextStyle(
                                         fontSize: 14,
@@ -197,7 +390,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             Column(
                               children: [
-                                Text('1.2k',
+                                Text(
+                                    NumberFormatter.format(
+                                        widget.following.length),
                                     style: GoogleFonts.manrope(
                                       textStyle: TextStyle(
                                         fontSize: 14,
@@ -304,49 +499,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    Expanded(
-                      child: InkWell(
-                        splashColor:
-                            Colors.grey, // Set the desired splash color
-                        highlightColor: Colors.transparent,
-                        onTap: () {
-                          setState(() {
-                            selectedIconIndex = 1;
-                          });
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: selectedIconIndex == 1
-                                    ? AppColor.primary // Selected tab color
-                                    : Colors.grey[200]!,
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          // Make the entire Container tappable
-                          child: Center(
-                            child: Text(
-                              'Favourites',
-                              style: GoogleFonts.manrope(
-                                textStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1.6,
-                                  letterSpacing: 0.15,
-                                  color: selectedIconIndex == 1
-                                      ? AppColor
-                                          .primary // Selected tab text color
-                                      : Color.fromARGB(255, 71, 71, 71),
+                    (widget.loggedInUser != null)
+                        ? (widget.currentUser.id == widget.loggedInUser!.id)
+                            ? Expanded(
+                                child: InkWell(
+                                  splashColor: Colors
+                                      .grey, // Set the desired splash color
+                                  highlightColor: Colors.transparent,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedIconIndex = 1;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(
+                                          color: selectedIconIndex == 1
+                                              ? AppColor
+                                                  .primary // Selected tab color
+                                              : Colors.grey[200]!,
+                                          width: 2,
+                                        ),
+                                      ),
+                                    ),
+                                    // Make the entire Container tappable
+                                    child: Center(
+                                      child: Text(
+                                        'Favourites',
+                                        style: GoogleFonts.manrope(
+                                          textStyle: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            height: 1.6,
+                                            letterSpacing: 0.15,
+                                            color: selectedIconIndex == 1
+                                                ? AppColor
+                                                    .primary // Selected tab text color
+                                                : Color.fromARGB(
+                                                    255, 71, 71, 71),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                              )
+                            : Container()
+                        : Container(),
                   ],
                 ),
               ),
@@ -354,29 +555,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  // Conditionally display posts based on the selected icon
                   if (selectedIconIndex == 0) {
-                    // Display 1 post for Dashboard
-                    return Card();
+                    if (widget.currentUser.posts == null ||
+                        widget.currentUser.posts!.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(
+                            'Your posts will appear here',
+                          ),
+                        ),
+                      );
+                    }
+                    return PostCard(
+                      post: posts[index],
+                      currentUser: widget.currentUser,
+                    );
                   } else if (selectedIconIndex == 1) {
-                    // Display 2 posts for TV
-                    return Column(
-                      children: [
-                        Card(),
-                        Card(),
-                      ],
+                    return PostCard(
+                      post: favPosts[index],
+                      currentUser: widget.currentUser,
                     );
                   } else {
                     // Handle other icons if needed
                     return Container();
                   }
                 },
-                childCount: 1, // Change the count based on your requirements
+                childCount: selectedIconIndex == 0
+                    ? (widget.currentUser.posts?.length ?? 1)
+                    : (favPosts.length ??
+                        1), // Change the count based on your requirements
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _logout() async {
+    api _api = api(); // Initialize the _api variable
+    int statusCode = await _api.logout();
+    if (statusCode == 200) {
+      await TokenManager.removeToken();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => SignInScreen()),
+        (Route route) => false,
+      );
+    } else {
+      showToast(message: 'Error logging out');
+    }
   }
 }

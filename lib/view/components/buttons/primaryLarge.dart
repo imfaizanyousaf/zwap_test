@@ -6,18 +6,21 @@ class PrimaryLarge extends StatelessWidget {
   final Function()? onPressed;
   final Color? color;
   final bool loading;
+  final bool disabled;
   PrimaryLarge(
       {required this.text,
       required this.onPressed,
       this.color = AppColor.primary,
-      this.loading = false});
+      this.loading = false,
+      this.disabled = false});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: loading ? AppColor.primaryDisabled : color,
+        backgroundColor:
+            (loading || disabled) ? AppColor.primaryDisabled : color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(45.0),
         ),
@@ -43,9 +46,11 @@ class PrimaryLarge extends StatelessWidget {
                       fontSize: 16.0,
                       fontWeight: FontWeight.normal,
                       letterSpacing: 1.25,
-                      color: color == AppColor.primary
-                          ? Colors.white
-                          : AppColor.primary,
+                      color: (disabled)
+                          ? const Color.fromARGB(86, 42, 42, 42)
+                          : color == AppColor.primary
+                              ? Colors.white
+                              : AppColor.primary,
                     ),
                   ),
           ),

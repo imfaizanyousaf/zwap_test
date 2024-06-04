@@ -1,10 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/global/commons/toast.dart';
+import 'package:zwap_test/model/user.dart';
+import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/utils/connection.dart';
+import 'package:zwap_test/view/add_interests.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/res/colors/colors.dart';
-import 'package:zwap_test/data/firebase_auth/firebaseauth_services.dart';
+import 'package:zwap_test/view/home.dart';
 import 'package:zwap_test/view/user_auth/signin.dart';
 import 'package:zwap_test/view/user_auth/verify.dart';
 import 'package:zwap_test/view/components/textFields/outlined.dart';
@@ -16,24 +20,24 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final FirebaseAuthService _auth = FirebaseAuthService();
-
-  final TextEditingController _nameController = TextEditingController();
-
+  api user = api();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-
   final TextEditingController _passwordController = TextEditingController();
 
   bool isSigningUp = false;
+  bool _validFirstName = true;
+  bool _validLastName = true;
   bool _validEmail = true;
-  bool _validName = true;
   bool _validPassword = true;
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _nameController.dispose();
     super.dispose();
   }
 
@@ -78,24 +82,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: Color(0xff5c5c5c),
                     )),
                 SizedBox(
-                  height: 48,
+                  height: 32,
                 ),
                 TextFieldOutlined(
-                  label: "Full Name",
-                  errorMessage: "Name is required!",
-                  controller: _nameController,
-                  onChanged: (_nameController) {
-                    isNameValid();
+                  label: "First Name",
+                  errorMessage: "First name is required!",
+                  controller: _firstNameController,
+                  onChanged: (_firstNameController) {
+                    isFirstNameValid();
                   },
-                  valid: _validName,
+                  valid: _validFirstName,
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                TextFieldOutlined(
+                  label: "Last Name",
+                  errorMessage: "Last name is required!",
+                  controller: _lastNameController,
+                  onChanged: (_lastNameController) {
+                    isLastNameValid();
+                  },
+                  valid: _validLastName,
                 ),
                 SizedBox(
                   height: 16,
                 ),
                 TextFieldOutlined(
                   label: "Email",
-                  errorMessage: _emailController == ""
-                      ? "This field is required"
+                  errorMessage: _emailController.text.isEmpty
+                      ? "Email is required"
                       : "Invalid Email",
                   controller: _emailController,
                   valid: _validEmail,
@@ -110,9 +126,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFieldOutlined(
                   label: "Password",
                   valid: _validPassword,
-                  errorMessage: _passwordController == ""
-                      ? "This field is required"
-                      : "Minimum password length is 6",
+                  errorMessage: _passwordController.text.isEmpty
+                      ? "Password is required"
+                      : "Minimum password length must be 8",
                   onChanged: (_passwordController) {
                     isPasswordValid();
                   },
@@ -126,10 +142,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 PrimaryLarge(
                     loading: isSigningUp,
                     text: 'Sign Up',
-                    onPressed: !_validEmail || !_validName || !_validPassword
+                    onPressed: !_validEmail ||
+                            !_validFirstName ||
+                            !_validLastName ||
+                            !_validPassword
                         ? null
-                        : () {
-                            _signUp(context);
+                        : () async {
+                            if (await isConnected()) {
+                              _signUp(context);
+                            } else {
+                              showToast(message: "No Internet Connection");
+                            }
                           }),
                 SizedBox(
                   height: 16,
@@ -177,35 +200,66 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     isEmailValid();
     isPasswordValid();
-    isNameValid();
-    if (!_validEmail || !_validName || !_validPassword) {
+    isFirstNameValid();
+    isLastNameValid();
+    if (!_validEmail ||
+        !_validFirstName ||
+        !_validLastName ||
+        !_validPassword) {
       setState(() {
         isSigningUp = false;
       });
       return;
     }
-    // String name = _nameController.text;
-    String email = _emailController.text;
-    String password = _passwordController.text;
+    // final response = '200';
+    final response = await user.register(
+        _firstNameController.text.toString(),
+        _lastNameController.text.toString(),
+        _emailController.text.toString(),
+        _passwordController.text.toString());
 
-    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+    if (response == '200') {
+      // User _currentUser = await user.getUser();
+      // print(_currentUser.toJson());
 
+      showToast(message: "User Registered Successfully");
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => AddInterestsScreen(
+                  previousScreen: 'SignUpScreen',
+                )),
+        (Route route) => false,
+      );
+    } else if (response == '302') {
+      api user = api();
+      User currentUser = await user.getUser(null);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => HomeScreen(
+                  currentUser: currentUser,
+                )),
+        (Route route) => false,
+      );
+    } else {
+      showToast(message: "User Registration Failed: $response");
+    }
     setState(() {
       isSigningUp = false;
     });
 
-    if (user != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => VerifyScreen()),
-      );
-    }
+    // if (user != null) {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => VerifyScreen()),
+    //   );
+    // }
   }
 
   void isPasswordValid() {
     String password = _passwordController.text.trim();
 
-    // Check if the password is empty
     if (password.isEmpty) {
       setState(() {
         _validPassword = false;
@@ -213,8 +267,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Check for the minimum password length (you can adjust the length as needed)
-    const int minLength = 6;
+    const int minLength = 8;
 
     setState(() {
       _validPassword = password.length >= minLength;
@@ -224,14 +277,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void isEmailValid() {
     String email = _emailController.text.trim();
 
-    // Check if the email is empty
     if (email.isEmpty) {
       setState(() {
         _validEmail = false;
       });
       return;
     }
-    // Regular expression for a basic email validation
     RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$');
 
     setState(() {
@@ -239,20 +290,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
     });
   }
 
-  void isNameValid() {
-    String name = _nameController.text.trim();
+  void isFirstNameValid() {
+    String firstName = _firstNameController.text.trim();
 
-    // Check if the name is empty
-    if (name.isEmpty) {
+    if (firstName.isEmpty) {
       setState(() {
-        _validName = false;
+        _validFirstName = false;
       });
       return;
     }
 
-    // If the name is not empty, consider it valid
     setState(() {
-      _validName = true;
+      _validFirstName = true;
+    });
+  }
+
+  void isLastNameValid() {
+    String lastName = _lastNameController.text.trim();
+
+    if (lastName.isEmpty) {
+      setState(() {
+        _validLastName = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _validLastName = true;
     });
   }
 }

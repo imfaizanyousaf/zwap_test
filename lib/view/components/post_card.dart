@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:zwap_test/model/post.dart';
+import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/product_details.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:zwap_test/view/profile.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
+  final User currentUser;
   final Post post;
-  const PostCard({super.key, required this.post});
+  const PostCard({super.key, required this.post, required this.currentUser});
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
   final int image = 0;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -42,7 +53,16 @@ class PostCard extends StatelessWidget {
                       children: [
                         InkWell(
                           borderRadius: BorderRadius.circular(100),
-                          onTap: () {},
+                          onTap: () {
+                            if (widget.post.user != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProfileScreen(
+                                        currentUser: widget.post.user!)),
+                              );
+                            }
+                          },
                           child: Row(
                             children: [
                               Container(
@@ -53,7 +73,8 @@ class PostCard extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Image.network(
-                                  'https://picsum.photos/seed/856/600',
+                                  widget.post.user!.logo ??
+                                      'https://avatar.iran.liara.run/username?username=${widget.post.user!.firstName}+${widget.post.user!.lastName}',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(Icons.error),
@@ -65,17 +86,21 @@ class PostCard extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.max,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    widget.post.user == null
+                                        ? Text(widget.currentUser.firstName +
+                                            ' ' +
+                                            widget.currentUser.lastName)
+                                        : Text(
+                                            widget.post.user!.firstName +
+                                                ' ' +
+                                                widget.post.user!.lastName,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
                                     Text(
-                                      post.user.firstName +
-                                          ' ' +
-                                          post.user.lastName,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      timeago.format(post.createdAt),
+                                      timeago.format(widget.post.createdAt!),
                                       style: TextStyle(
                                         fontSize: 8,
                                       ),
@@ -90,9 +115,23 @@ class PostCard extends StatelessWidget {
                     ),
                     IconButton(
                       icon: Icon(Icons.more_horiz),
-                      onPressed: () {
+                      onPressed: () async {
+                        api user = api();
+                        bool isFav = false;
+                        List<Post> favPosts = await user.getFavPosts(
+                          widget.currentUser.id,
+                        );
+                        for (Post post in favPosts) {
+                          if (post.id == widget.post.id) {
+                            setState(() {
+                              isFav = true;
+                            });
+                          }
+                        }
+
                         showModalBottomSheet(
                           context: context,
+                          isScrollControlled: true,
                           builder: (BuildContext context) {
                             return Padding(
                               padding:
@@ -101,25 +140,55 @@ class PostCard extends StatelessWidget {
                                 child: Wrap(
                                   children: <Widget>[
                                     ListTile(
-                                      leading:
-                                          Icon(Icons.favorite_border_rounded),
-                                      title: Text('Add to favorites'),
-                                      onTap: () => {},
+                                      leading: isFav
+                                          ? Icon(
+                                              Icons.favorite,
+                                              color: Colors.red,
+                                            )
+                                          : Icon(Icons.favorite_border_rounded),
+                                      title: isFav
+                                          ? Text('Remove from favorites')
+                                          : Text('Add to favorites'),
+                                      onTap: () async {
+                                        api user = api();
+                                        List<Post> oldFavPosts = await user
+                                            .getFavPosts(widget.currentUser.id);
+                                        List<int> oldFavPostIds = oldFavPosts
+                                            .map((e) => e.id!)
+                                            .toList();
+                                        if (isFav) {
+                                          oldFavPostIds.remove(widget.post.id);
+                                        } else {
+                                          oldFavPostIds.add(widget.post.id!);
+                                        }
+                                        String response = await user.addFavPost(
+                                            widget.currentUser.id,
+                                            oldFavPostIds);
+                                        Navigator.pop(context);
+                                        if (response == '200') {
+                                          setState(() {
+                                            isFav = !isFav;
+                                          });
+                                        }
+                                      },
                                     ),
                                     ListTile(
-                                      leading: Icon(Icons.copy),
-                                      title: Text('Copy Link'),
-                                      onTap: () => {},
-                                    ),
-                                    ListTile(
-                                      leading: Icon(
-                                        Icons.flag_outlined,
-                                        color: Colors.red,
-                                      ),
-                                      title: Text(
-                                        'Report',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
+                                      leading: widget.post.userId ==
+                                              widget.currentUser.id
+                                          ? Icon(
+                                              Icons.delete_outline,
+                                              color: const Color.fromRGBO(
+                                                  244, 67, 54, 1),
+                                            )
+                                          : Icon(
+                                              Icons.flag_outlined,
+                                              color: const Color.fromRGBO(
+                                                  244, 67, 54, 1),
+                                            ),
+                                      title: widget.post.userId ==
+                                              widget.currentUser.id
+                                          ? Text('Delete')
+                                          : Text('Report'),
                                       onTap: () => {},
                                     ),
                                   ],
@@ -149,7 +218,8 @@ class PostCard extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          ProductDetailsScreen(post: post)));
+                                          ProductDetailsScreen(
+                                              post: widget.post)));
                             },
                             child: PageView(
                               // controller: _model.pageViewController ??=
@@ -290,9 +360,12 @@ class PostCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  HealthBadge(condition: post.condition.name),
+                  HealthBadge(
+                      condition: widget.post.condition == null
+                          ? 'New'
+                          : widget.post.condition!.name),
                   Text(
-                    'Valencia, Spain',
+                    "Valencia, Spain",
                     textAlign: TextAlign.end,
                     style: TextStyle(
                       fontSize: 12,
@@ -309,7 +382,7 @@ class PostCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      post.title,
+                      widget.post.title,
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
@@ -326,7 +399,7 @@ class PostCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          post.description,
+                          widget.post.description,
                           style: TextStyle(
                             fontSize: 12,
                           ),

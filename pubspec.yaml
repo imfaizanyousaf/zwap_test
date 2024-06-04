@@ -34,12 +34,8 @@ dependencies:
   animate_do: ^3.1.2
   cupertino_icons: ^1.0.2
   flutter_svg: ^2.0.9
-  cloud_firestore: ^4.13.6
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
+ 
   fluttertoast: ^8.2.4
-  firebase_storage: ^11.5.5
-  firebase_app_check: ^0.2.1+8
   flutter_dotenv: ^5.1.0
   smooth_page_indicator: ^1.1.0
   cached_network_image: ^3.3.1
@@ -48,6 +44,7 @@ dependencies:
   dio: ^5.4.3+1
   shared_preferences: ^2.2.3
   timeago: ^3.1.0
+  connectivity_plus: ^6.0.3
   
 dev_dependencies:
   flutter_test:

@@ -7,11 +7,13 @@ import 'package:zwap_test/view/components/health_badge.dart';
 class ItemCondition extends StatefulWidget {
   final bool
       showAsChecklist; // Parameter to determine checklist or radio button
-  final List<String> initialSelectedItems; // New parameter
+  final List<String> initialSelectedItems;
+  final bool returnConditions;
 
   ItemCondition(
       {Key? key,
       this.showAsChecklist = false,
+      this.returnConditions = false,
       required this.initialSelectedItems})
       : super(key: key);
 
@@ -21,13 +23,53 @@ class ItemCondition extends StatefulWidget {
 
 class _ItemConditionState extends State<ItemCondition> {
   late Future<List<Conditions>> _conditionsFuture;
-  List<String> selectedItems = []; // List to hold selected items
+  List<dynamic> selectedItems = []; // List to hold selected items
 
   @override
   void initState() {
     super.initState();
     _conditionsFuture = api().getConditions();
-    selectedItems = List.from(widget.initialSelectedItems);
+    if (widget.returnConditions) {
+      setInitialConditions();
+    } else {
+      selectedItems = List.from(widget.initialSelectedItems);
+    }
+  }
+
+  setInitialConditions() async {
+    selectedItems = await _conditionsFuture.then(
+      (value) => value
+          .where((condition) =>
+              widget.initialSelectedItems.contains(condition.name))
+          .toList(),
+    );
+  }
+
+  Future<bool?> _showExitDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Discard Selection?'),
+          content: const Text(
+              'Are you sure you want to exit without selecting any items?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -44,8 +86,17 @@ class _ItemConditionState extends State<ItemCondition> {
           if (didPop) {
             return;
           }
-          if (context.mounted) {
-            Navigator.pop(context, selectedItems);
+          bool shouldPop = true;
+          if (selectedItems.isNotEmpty) {
+            shouldPop = await _showExitDialog() ?? false;
+          }
+          if (context.mounted && shouldPop) {
+            Navigator.pop(
+              context,
+              widget.returnConditions
+                  ? (selectedItems.map((item) => item as Conditions).toList())
+                  : selectedItems.map((e) => e.toString()).toList(),
+            );
           }
         },
         child: SingleChildScrollView(
@@ -79,16 +130,20 @@ class _ItemConditionState extends State<ItemCondition> {
                                     const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Text(snapshot.data![index].description),
                               ),
-                              value: selectedItems
-                                  .contains(snapshot.data![index].name),
+                              value: selectedItems.contains(
+                                  widget.returnConditions
+                                      ? snapshot.data![index]
+                                      : snapshot.data![index].name),
                               onChanged: (value) {
                                 setState(() {
                                   if (value as bool) {
-                                    selectedItems
-                                        .add(snapshot.data![index].name);
+                                    selectedItems.add(widget.returnConditions
+                                        ? snapshot.data![index]
+                                        : snapshot.data![index].name);
                                   } else {
-                                    selectedItems
-                                        .remove(snapshot.data![index].name);
+                                    selectedItems.remove(widget.returnConditions
+                                        ? snapshot.data![index]
+                                        : snapshot.data![index].name);
                                   }
                                 });
                               },
@@ -109,13 +164,19 @@ class _ItemConditionState extends State<ItemCondition> {
                                     const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Text(snapshot.data![index].description),
                               ),
-                              value: snapshot.data![index].name,
+                              value: widget.returnConditions
+                                  ? snapshot.data![index]
+                                  : snapshot.data![index].name,
                               groupValue: selectedItems.isNotEmpty
                                   ? selectedItems[0]
                                   : null,
                               onChanged: (value) {
                                 setState(() {
-                                  selectedItems = [value as String];
+                                  if (widget.returnConditions) {
+                                    selectedItems = [value];
+                                  } else {
+                                    selectedItems = [value.toString()];
+                                  }
                                 });
                               },
                               controlAffinity: ListTileControlAffinity.leading,
@@ -128,6 +189,21 @@ class _ItemConditionState extends State<ItemCondition> {
           ),
         ),
       ),
+      floatingActionButton: selectedItems.isNotEmpty
+          ? FloatingActionButton(
+              onPressed: () async {
+                Navigator.pop(
+                    context,
+                    widget.returnConditions
+                        ? (selectedItems
+                            .map((item) => item as Conditions)
+                            .toList())
+                        : selectedItems.map((e) => e.toString()).toList());
+              },
+              child: Icon(Icons.check, color: AppColor.background),
+              backgroundColor: AppColor.primary,
+            )
+          : null,
     );
   }
 }
