@@ -228,90 +228,49 @@ class _PostCardState extends State<PostCard> {
                               clipBehavior: Clip.antiAliasWithSaveLayer,
                               scrollDirection: Axis.horizontal,
                               children: [
-                                Image.network(
-                                  'https://picsum.photos/seed/169/600',
-                                  fit: BoxFit.cover,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    } else {
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          backgroundColor: Colors.grey,
-                                          color: AppColor.primary,
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                                      .toDouble()
-                                              : null,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.error),
-                                ),
-                                Image.network(
-                                  'https://picsum.photos/seed/144/900',
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    } else {
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          backgroundColor: Colors.grey,
-                                          color: AppColor.primary,
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                                      .toDouble()
-                                              : null,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.error),
-                                ),
-                                Image.network(
-                                  'https://picsum.photos/986/600',
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    } else {
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          backgroundColor: Colors.grey,
-                                          color: AppColor.primary,
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes!
-                                                      .toDouble()
-                                              : null,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.error),
-                                ),
+                                widget.post.imageUrls != null
+                                    ? ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount:
+                                            widget.post.imageUrls!.length,
+                                        itemBuilder: (context, index) {
+                                          return Container(
+                                            width: 400,
+                                            child: Image.network(
+                                              widget.post.imageUrls![index],
+                                              fit: BoxFit.cover,
+                                              loadingBuilder: (context, child,
+                                                  loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child;
+                                                } else {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      backgroundColor:
+                                                          Colors.grey,
+                                                      color: AppColor.primary,
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              loadingProgress
+                                                                  .expectedTotalBytes!
+                                                                  .toDouble()
+                                                          : null,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                              errorBuilder: (context, error,
+                                                      stackTrace) =>
+                                                  Icon(Icons.error_outline),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Text('no image')
                               ],
                             ),
                           ),

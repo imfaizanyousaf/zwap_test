@@ -1,8 +1,11 @@
 // This screen is used to edit a new post
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/categories.dart';
 import 'package:zwap_test/model/conditions.dart';
@@ -25,13 +28,20 @@ class EditNewPostScreen extends StatefulWidget {
 
 class _EditNewPostScreenState extends State<EditNewPostScreen> {
   api _api = api();
-  final List<String> images = [
-    'https://picsum.photos/856/600',
-    'https://picsum.photos/856/600',
-    'https://picsum.photos/856/600',
-    'https://picsum.photos/856/600',
-    'https://picsum.photos/856/600',
-  ];
+  final List<String> images = [];
+  List<File>? _images;
+  final picker = ImagePicker();
+  Future getImage() async {
+    final pickedFile = await picker.pickMultiImage();
+    setState(() {
+      if (pickedFile != null) {
+        _images = pickedFile.map((e) => File(e.path)).toList();
+        images.addAll(pickedFile.map((e) => e.path).toList());
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
 
   List<Categories> selectedCategories = [];
 
@@ -81,15 +91,21 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                       // Always display "Add More Images" container as the first item
                       return Padding(
                         padding: const EdgeInsets.all(4.0),
-                        child: Container(
-                          width: 100.0,
-                          height: 200.0,
-                          color: Colors.grey[300],
-                          child: Center(
-                            child: Icon(
-                              Icons.add,
-                              size: 40.0,
-                              color: Colors.blue,
+                        child: InkWell(
+                          onTap: () {
+                            // open image picker
+                            getImage();
+                          },
+                          child: Container(
+                            width: 100.0,
+                            height: 200.0,
+                            color: Colors.grey[300],
+                            child: Center(
+                              child: Icon(
+                                Icons.add,
+                                size: 40.0,
+                                color: Colors.blue,
+                              ),
                             ),
                           ),
                         ),
@@ -100,9 +116,8 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                         padding: const EdgeInsets.all(4.0),
                         child: AspectRatio(
                           aspectRatio: 1.0, // Maintain a square aspect ratio
-                          child: Image.network(
-                            images[index -
-                                1], // Adjust index to account for the "Add More Images" container
+                          child: Image.file(
+                            File(images[index - 1]),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -303,16 +318,18 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                   },
                 );
                 Post newPost = Post(
-                    title: titleController.text,
-                    description: descController.text,
-                    userId: widget.currentUser.id,
-                    conditionId: selectedConditions[0].id,
-                    publishedAt: DateTime.now(),
-                    published: true,
-                    user: widget.currentUser,
-                    condition: selectedConditions[0],
-                    locations: selectedLocations,
-                    categories: selectedCategories);
+                  title: titleController.text,
+                  description: descController.text,
+                  userId: widget.currentUser.id,
+                  conditionId: selectedConditions[0].id,
+                  publishedAt: DateTime.now(),
+                  published: true,
+                  user: widget.currentUser,
+                  condition: selectedConditions[0],
+                  locations: selectedLocations,
+                  categories: selectedCategories,
+                  images: images,
+                );
                 String response = await _api.addPost(newPost);
                 if (response == '200') {
                   Navigator.pop(context);

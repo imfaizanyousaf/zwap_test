@@ -108,15 +108,20 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             pinned: true,
             stretch: true,
             flexibleSpace: FlexibleSpaceBar(
-              background: PageView.builder(
-                itemCount: images.length,
-                itemBuilder: (context, index) {
-                  return Image.network(
-                    images[index],
-                    fit: BoxFit.fitWidth,
-                  );
-                },
-              ),
+              background: widget.post.imageUrls != null
+                  ? PageView.builder(
+                      itemCount: widget.post.imageUrls!.length,
+                      itemBuilder: (context, index) {
+                        return Image.network(
+                          widget.post.imageUrls![index],
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Image.network(
+                      'https://picsum.photos/986/600',
+                      fit: BoxFit.cover,
+                    ),
               stretchModes: const [
                 StretchMode.blurBackground,
                 StretchMode.zoomBackground,
@@ -529,7 +534,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => ExchangeScreen()),
+                                        builder: (context) => ExchangeScreen(
+                                              requestedPost: widget.post,
+                                            )),
                                   );
                                 }
                               },

@@ -75,7 +75,6 @@ flutter:
     - assets/zwap.svg
     - assets/email-illustration.svg
     - assets/avatar.jpg
-    - assets/.env
     - assets/onboarding-1.png
     - assets/icons/
     - assets/image.svg

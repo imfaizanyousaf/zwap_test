@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/model/request.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/utils/connection.dart';
+import 'package:zwap_test/view/home.dart';
+import 'package:zwap_test/view/requests.dart';
 
-class RequestCard extends StatelessWidget {
-  const RequestCard({super.key});
+class RequestCard extends StatefulWidget {
+  final Request requests;
+  final User? currentUser;
+
+  const RequestCard(
+      {super.key, required this.requests, required this.currentUser});
+
+  @override
+  State<RequestCard> createState() => _RequestCardState();
+}
+
+class _RequestCardState extends State<RequestCard> {
   final int image = 0;
 
   @override
@@ -50,7 +67,8 @@ class RequestCard extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Image.network(
-                                  'https://picsum.photos/seed/856/600',
+                                  widget.requests.requestedBy.logo ??
+                                      'https://avatar.iran.liara.run/username?username=${widget.requests.requestedBy.firstName}+${widget.requests.requestedBy.lastName}',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(Icons.error),
@@ -63,7 +81,19 @@ class RequestCard extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Usman Ibrahim',
+                                      (widget.currentUser != null)
+                                          ? (widget.requests.requestedBy.id ==
+                                                  widget.currentUser!.id)
+                                              ? (widget.currentUser!.firstName +
+                                                  ' ' +
+                                                  widget.currentUser!.lastName +
+                                                  '(You)')
+                                              : (widget.requests.requestedBy
+                                                      .firstName +
+                                                  ' ' +
+                                                  widget.requests.requestedBy
+                                                      .lastName)
+                                          : "",
                                       style: GoogleFonts.manrope(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
@@ -82,14 +112,23 @@ class RequestCard extends StatelessWidget {
                       children: [
                         Padding(
                           padding: EdgeInsetsDirectional.fromSTEB(0, 0, 4, 0),
-                          child: Icon(
-                            Icons.call_received,
-                            color: AppColor.primary,
-                            size: 16,
-                          ),
+                          child: (widget.currentUser != null)
+                              ? (widget.currentUser!.id ==
+                                      widget.requests.requestedBy.id)
+                                  ? Icon(
+                                      Icons.call_made,
+                                      color: AppColor.primary,
+                                      size: 16,
+                                    )
+                                  : Icon(
+                                      Icons.call_received,
+                                      color: AppColor.primary,
+                                      size: 16,
+                                    )
+                              : Container(),
                         ),
                         Text(
-                          '2hrs ago',
+                          timeago.format(widget.requests.createdAt),
                           textAlign: TextAlign.end,
                           style: GoogleFonts.manrope(
                             fontSize: 12,
@@ -100,37 +139,42 @@ class RequestCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border(
-                      left: BorderSide(
-                        color:
-                            Colors.grey, // Specify the color of the left border
-                        width: 3, // Specify the width of the left border
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            'Hi! I would like to exchange your Canon  EOS-1DX Mark III with my Nikon EDS Mark III. If you need further details you can chat with me',
-                            softWrap: true,
+              widget.requests.requestMessage != null ||
+                      widget.requests.requestMessage == ""
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border(
+                            left: BorderSide(
+                              color: Colors
+                                  .grey, // Specify the color of the left border
+                              width: 3, // Specify the width of the left border
+                            ),
                           ),
                         ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: widget.requests != null
+                                    ? Text(
+                                        widget.requests.requestMessage ?? '',
+                                        softWrap: true,
+                                      )
+                                    : Text('No request message found'),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    )
+                  : Container(),
               Stack(alignment: Alignment.center, children: [
                 Row(
                   mainAxisSize: MainAxisSize.max,
@@ -224,51 +268,123 @@ class RequestCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          // Chat button logic
-                        },
-                        child: Icon(Icons.chat),
-                        style: ButtonStyle(
-                          side: MaterialStateProperty.all(
-                            BorderSide(color: AppColor.primary),
-                          ),
-                          foregroundColor:
-                              MaterialStateProperty.all(AppColor.primary),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: OutlinedButton(
-                              onPressed: () {
-                                // Close button logic
-                              },
-                              child: Icon(Icons.close),
+                      widget.requests.status == 'accepted'
+                          ? OutlinedButton(
+                              onPressed: () {},
+                              child: Icon(Icons.chat),
                               style: ButtonStyle(
                                 side: MaterialStateProperty.all(
-                                  BorderSide(color: AppColor.secondary),
+                                  BorderSide(color: AppColor.primary),
                                 ),
-                                foregroundColor: MaterialStateProperty.all(
-                                    AppColor.secondary),
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Check button logic
-                            },
-                            child: Icon(Icons.check),
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(AppColor.primary),
                                 foregroundColor:
-                                    MaterialStateProperty.all(Colors.white)),
-                          ),
-                        ],
-                      )
+                                    MaterialStateProperty.all(AppColor.primary),
+                              ),
+                            )
+                          : Container(),
+                      (widget.currentUser != null)
+                          ? widget.requests.requestedBy.id ==
+                                  widget.currentUser!.id
+                              ? Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      if (await isConnected()) {
+                                        api _api = api();
+                                        String response = await _api
+                                            .cancelRequest(widget.requests.id);
+                                        if (response == '200') {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      'Request Cancelled')));
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    HomeScreen(
+                                                      currentUser:
+                                                          widget.currentUser!,
+                                                    )),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      'Failed to Cancel $response')));
+                                        }
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text('No Internet')));
+                                      }
+                                    },
+                                    child: Text('Cancel'),
+                                    style: ButtonStyle(
+                                        side: MaterialStateProperty.all(
+                                          BorderSide(color: AppColor.secondary),
+                                        ),
+                                        foregroundColor:
+                                            MaterialStateProperty.all(
+                                                AppColor.secondary)),
+                                  ),
+                                )
+                              : Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          // Close button logic
+                                        },
+                                        child: Icon(Icons.close),
+                                        style: ButtonStyle(
+                                          side: MaterialStateProperty.all(
+                                            BorderSide(
+                                                color: AppColor.secondary),
+                                          ),
+                                          foregroundColor:
+                                              MaterialStateProperty.all(
+                                                  AppColor.secondary),
+                                        ),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (await isConnected()) {
+                                          api _api = api();
+                                          String response =
+                                              await _api.acceptRequest(
+                                                  widget.requests.id);
+                                          if (response == '200') {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        'Request Accepted')));
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                        'Failed to accept $response')));
+                                          }
+                                        } else {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content:
+                                                      Text('No Internet')));
+                                        }
+                                      },
+                                      child: Icon(Icons.check),
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all(
+                                                  AppColor.primary),
+                                          foregroundColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.white)),
+                                    ),
+                                  ],
+                                )
+                          : Container()
                     ]),
               ),
             ],

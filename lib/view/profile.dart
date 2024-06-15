@@ -44,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       User tempUser = await _api.getUser(null);
       List<Post> tempFavPosts = await _api.getFavPosts(widget.currentUser.id);
       posts = userPosts;
-      print(jsonEncode(posts));
+      print('USER POSTS: ' + jsonEncode(posts));
       List<User> tempFollowedBy =
           await _api.getFollowedBy(widget.currentUser.id);
       List<User> tempFollowing = await _api.getFollowing(widget.currentUser.id);
@@ -222,8 +222,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   radius: 28,
                                   backgroundImage: widget.loggedInUser != null
                                       ? NetworkImage(
-                                          widget.loggedInUser!.logo ??
-                                              'https://avatar.iran.liara.run/username?username=${widget.loggedInUser!.firstName}+${widget.loggedInUser!.lastName}',
+                                          widget.currentUser.logo ??
+                                              'https://avatar.iran.liara.run/username?username=${widget.currentUser!.firstName}+${widget.currentUser!.lastName}',
                                         )
                                       : NetworkImage(
                                           'https://avatar.iran.liara.run/username?username=${widget.currentUser.firstName}+${widget.currentUser.lastName}',
@@ -567,10 +567,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       );
                     }
-                    return PostCard(
-                      post: posts[index],
-                      currentUser: widget.currentUser,
-                    );
+                    if (posts.isEmpty) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(
+                            'No posts found',
+                          ),
+                        ),
+                      );
+                    } else {
+                      return PostCard(
+                        post: posts[index],
+                        currentUser: widget.currentUser,
+                      );
+                    }
                   } else if (selectedIconIndex == 1) {
                     return PostCard(
                       post: favPosts[index],

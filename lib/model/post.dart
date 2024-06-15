@@ -13,7 +13,7 @@ class Post {
   DateTime? exchangedAt;
   bool? published;
   List<dynamic>? images;
-  List<String>? imageUrls;
+  List<dynamic>? imageUrls;
   DateTime? createdAt;
   DateTime? updatedAt;
   User? user;

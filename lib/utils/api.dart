@@ -7,7 +7,9 @@ import 'package:zwap_test/model/categories.dart';
 import 'package:zwap_test/model/conditions.dart';
 import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/post.dart';
+import 'package:zwap_test/model/request.dart';
 import 'package:zwap_test/model/user.dart';
+import 'package:zwap_test/utils/connection.dart';
 import 'package:zwap_test/utils/dio_interceptor.dart';
 import 'package:http/http.dart' as http;
 import 'package:zwap_test/utils/token_manager.dart';
@@ -127,8 +129,6 @@ class api {
   }
 
   Future<String> updateUser(User user, {String? filePath}) async {
-    print('File Path: $filePath');
-
     try {
       // Validate the file path
       if (filePath != null) {
@@ -289,7 +289,11 @@ class api {
         throw Exception("Failed to load categories ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load categories: $e");
+      if (await isConnected()) {
+        throw Exception("Failed to load categories: $e");
+      } else {
+        throw 'No Internet Connection';
+      }
     }
   }
 
@@ -312,22 +316,48 @@ class api {
   //create an add Post function that takes in a post object and sends a post request to the api
   Future<String> addPost(Post post) async {
     try {
+      // Create FormData
+      FormData formData = FormData.fromMap({
+        "title": post.title,
+        "description": post.description,
+        "user_id": post.userId,
+        "condition_id": post.conditionId,
+        "categories": post.categories != null
+            ? post.categories!.map((e) => e.id).toList()
+            : [],
+        "locations": post.locations != null
+            ? post.locations!.map((e) => e.id).toList()
+            : [],
+        "published": post.published,
+        "images": [
+          if (post.images != null)
+            {
+              for (String imagePath in post.images!)
+                await MultipartFile.fromFile(imagePath,
+                    filename: imagePath.split('/').last),
+            }
+        ]
+      });
+
+      // Send POST request
       final response = await _dio.post(
         "${apiUrl}/posts",
-        // options: Options(
-        //   validateStatus: (status) {
-        //     return status! < 500; // Accept all status codes below 500
-        //   },
-        // ),
-        data: post.toJson(),
+        data: formData,
       );
+
+      // Handle response
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         return response.statusCode.toString();
       } else {
         return Future.error(response.statusCode.toString());
       }
     } on DioException catch (e) {
-      return e.response!.statusCode.toString();
+      print('----------------REQUEST----------------');
+      FormData data = e.requestOptions.data;
+      print(data.fields);
+      print('----------------RESPONSE----------------');
+      print(e.response?.data);
+      return e.response?.statusCode?.toString() ?? 'Unknown error';
     }
   }
 
@@ -448,7 +478,11 @@ class api {
         throw Exception("Failed to load user posts ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load user posts: $e");
+      if (await isConnected()) {
+        throw Exception("Failed to load user posts: $e");
+      } else {
+        throw 'No Internet Connection';
+      }
     }
   }
 
@@ -466,6 +500,90 @@ class api {
       }
     } catch (e) {
       throw Exception("Failed to load conditions: $e");
+    }
+  }
+
+  Future<List<Request>> getReceivedRequests() async {
+    try {
+      final response = await _dio.get(apiUrl + "/requests/received");
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = response.data;
+        List<Request> requests =
+            responseData.map((json) => Request.fromJson(json)).toList();
+        return requests;
+      } else {
+        throw Exception("Failed to load requests ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load requests: $e");
+    }
+  }
+
+  Future<List<Request>> getSentRequests() async {
+    try {
+      final response = await _dio.get(apiUrl + "/requests/sent");
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = response.data;
+        List<Request> requests =
+            responseData.map((json) => Request.fromJson(json)).toList();
+        // remove the requests that have been canceled. you can check its status from request.status
+        requests.removeWhere((element) => element.status == 'canceled');
+        return requests;
+      } else {
+        throw Exception("Failed to load requests ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load requests: $e");
+    }
+  }
+
+  // function to add request
+  Future<String> addRequest(
+      int requestPostId, int exchangePostId, String requestMessage) async {
+    try {
+      final response = await _dio.post("${apiUrl}/requests", data: {
+        'requested_post_id': requestPostId,
+        'exchange_post_id': exchangePostId,
+        'request_message': requestMessage,
+      });
+      if (response.statusCode == 200) {
+        return response.statusCode.toString();
+      } else {
+        throw Exception("Failed to load user posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load user posts: $e");
+    }
+  }
+
+  // function to cancel request
+  Future<String> cancelRequest(int requestId) async {
+    try {
+      final response = await _dio.get(
+        "${apiUrl}/requests/$requestId/cancel",
+      );
+      if (response.statusCode == 200) {
+        return response.statusCode.toString();
+      } else {
+        throw Exception("Failed to load user posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load user posts: $e");
+    }
+  }
+
+  Future<String> acceptRequest(int requestId) async {
+    try {
+      final response = await _dio.get(
+        "${apiUrl}/requests/$requestId/accept",
+      );
+      if (response.statusCode == 200) {
+        return response.statusCode.toString();
+      } else {
+        throw Exception("Failed to load user posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load user posts: $e");
     }
   }
 }

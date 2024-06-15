@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/utils/api.dart';
@@ -11,6 +12,9 @@ class ExchangeScreen extends StatefulWidget {
   @override
   _ExchangeScreenState createState() => _ExchangeScreenState();
   Post? exchangeWith;
+  final Post requestedPost;
+
+  ExchangeScreen({required this.requestedPost});
 
   api user = api();
 }
@@ -18,6 +22,7 @@ class ExchangeScreen extends StatefulWidget {
 class _ExchangeScreenState extends State<ExchangeScreen> {
   List<Post> posts = [];
   bool hasPosts = true;
+  TextEditingController messageController = TextEditingController();
   void getUserPosts() async {
     User currentUser = await widget.user.getUser(null);
     List<Post> userPosts = await widget.user.getPostsByUser(currentUser.id);
@@ -43,6 +48,12 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
   }
 
   @override
+  void dispose() {
+    messageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -54,6 +65,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: TextField(
+              controller: messageController,
               decoration: InputDecoration(
                 labelText: 'Write a message (Optional)',
               ),
@@ -132,7 +144,79 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
         PrimaryLarge(
             text: 'Send Offer',
             disabled: widget.exchangeWith == null,
-            onPressed: () {})
+            onPressed: () async {
+              // show a loading dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(width: 16),
+                          Text("Sending Offer..."),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+              if (widget.exchangeWith != null) {
+                api _api = api();
+                String response = await _api.addRequest(
+                    widget.requestedPost.id!,
+                    widget.exchangeWith!.id!,
+                    messageController.text);
+                Navigator.pop(context);
+                if (response == '200') {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.green,
+                              ),
+                              Text("Offer Sent!"),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                } else {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("Failed to send offer!"),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                }
+              }
+            })
       ],
     );
   }
