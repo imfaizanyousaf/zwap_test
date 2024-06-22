@@ -39,6 +39,13 @@ class _SplashScreenState extends State<SplashScreen> {
               width: 80.0,
             ),
             SizedBox(height: 16),
+            Text(
+              'Aa rha hu bhai. Bas nikal aya',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             // Add any additional widgets, such as a loading indicator
           ],
         ),

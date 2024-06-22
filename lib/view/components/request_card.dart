@@ -7,15 +7,20 @@ import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/utils/connection.dart';
+import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/home.dart';
 import 'package:zwap_test/view/requests.dart';
 
 class RequestCard extends StatefulWidget {
   final Request requests;
   final User? currentUser;
+  final VoidCallback onRequestUpdated;
 
   const RequestCard(
-      {super.key, required this.requests, required this.currentUser});
+      {super.key,
+      required this.requests,
+      required this.currentUser,
+      required this.onRequestUpdated});
 
   @override
   State<RequestCard> createState() => _RequestCardState();
@@ -23,6 +28,23 @@ class RequestCard extends StatefulWidget {
 
 class _RequestCardState extends State<RequestCard> {
   final int image = 0;
+  String requestedToName = "";
+
+  void getRequestedToName() async {
+    api _api = api();
+    User requestedTo = await _api.getUser(widget.requests.requestedPost.userId);
+    if (mounted) {
+      setState(() {
+        requestedToName = requestedTo.firstName + ' ' + requestedTo.lastName;
+      });
+    }
+  }
+
+  @override
+  initState() {
+    super.initState();
+    getRequestedToName();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +106,7 @@ class _RequestCardState extends State<RequestCard> {
                                       (widget.currentUser != null)
                                           ? (widget.requests.requestedBy.id ==
                                                   widget.currentUser!.id)
-                                              ? (widget.currentUser!.firstName +
-                                                  ' ' +
-                                                  widget.currentUser!.lastName +
-                                                  '(You)')
+                                              ? requestedToName
                                               : (widget.requests.requestedBy
                                                       .firstName +
                                                   ' ' +
@@ -269,122 +288,119 @@ class _RequestCardState extends State<RequestCard> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       widget.requests.status == 'accepted'
-                          ? OutlinedButton(
-                              onPressed: () {},
-                              child: Icon(Icons.chat),
-                              style: ButtonStyle(
-                                side: MaterialStateProperty.all(
-                                  BorderSide(color: AppColor.primary),
-                                ),
-                                foregroundColor:
-                                    MaterialStateProperty.all(AppColor.primary),
+                          ? Expanded(
+                              child: ElevatedButton(
+                                onPressed: () async {},
+                                child: Text('Chat'),
+                                style: ButtonStyle(
+                                    side: MaterialStateProperty.all(
+                                      BorderSide(color: AppColor.primary),
+                                    ),
+                                    foregroundColor: MaterialStateProperty.all(
+                                        AppColor.primary)),
                               ),
                             )
-                          : Container(),
-                      (widget.currentUser != null)
-                          ? widget.requests.requestedBy.id ==
-                                  widget.currentUser!.id
-                              ? Expanded(
-                                  child: ElevatedButton(
-                                    onPressed: () async {
-                                      if (await isConnected()) {
-                                        api _api = api();
-                                        String response = await _api
-                                            .cancelRequest(widget.requests.id);
-                                        if (response == '200') {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      'Request Cancelled')));
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    HomeScreen(
-                                                      currentUser:
-                                                          widget.currentUser!,
-                                                    )),
-                                          );
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content: Text(
-                                                      'Failed to Cancel $response')));
-                                        }
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                                content: Text('No Internet')));
-                                      }
-                                    },
-                                    child: Text('Cancel'),
-                                    style: ButtonStyle(
-                                        side: MaterialStateProperty.all(
-                                          BorderSide(color: AppColor.secondary),
-                                        ),
-                                        foregroundColor:
-                                            MaterialStateProperty.all(
-                                                AppColor.secondary)),
-                                  ),
-                                )
-                              : Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8.0),
-                                      child: OutlinedButton(
-                                        onPressed: () {
-                                          // Close button logic
-                                        },
-                                        child: Icon(Icons.close),
-                                        style: ButtonStyle(
-                                          side: MaterialStateProperty.all(
-                                            BorderSide(
-                                                color: AppColor.secondary),
-                                          ),
-                                          foregroundColor:
-                                              MaterialStateProperty.all(
-                                                  AppColor.secondary),
-                                        ),
-                                      ),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        if (await isConnected()) {
-                                          api _api = api();
-                                          String response =
-                                              await _api.acceptRequest(
-                                                  widget.requests.id);
-                                          if (response == '200') {
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                                    content: Text(
-                                                        'Request Accepted')));
+                          : (widget.currentUser != null)
+                              ? widget.requests.requestedBy.id ==
+                                      widget.currentUser!.id
+                                  ? Expanded(
+                                      child: ElevatedButton(
+                                        onPressed: () async {
+                                          if (await isConnected()) {
+                                            api _api = api();
+                                            String response =
+                                                await _api.cancelRequest(
+                                                    widget.requests.id);
+                                            if (response == '200') {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          'Request Cancelled')));
+
+                                              widget.onRequestUpdated();
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          'Failed to Cancel $response')));
+                                            }
                                           } else {
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(SnackBar(
-                                                    content: Text(
-                                                        'Failed to accept $response')));
+                                                    content:
+                                                        Text('No Internet')));
                                           }
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(SnackBar(
-                                                  content:
-                                                      Text('No Internet')));
-                                        }
-                                      },
-                                      child: Icon(Icons.check),
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all(
-                                                  AppColor.primary),
-                                          foregroundColor:
-                                              MaterialStateProperty.all(
-                                                  Colors.white)),
-                                    ),
-                                  ],
-                                )
-                          : Container()
+                                        },
+                                        child: Text('Cancel'),
+                                        style: ButtonStyle(
+                                            side: MaterialStateProperty.all(
+                                              BorderSide(
+                                                  color: AppColor.secondary),
+                                            ),
+                                            foregroundColor:
+                                                MaterialStateProperty.all(
+                                                    AppColor.secondary)),
+                                      ),
+                                    )
+                                  : Row(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8.0),
+                                          child: OutlinedButton(
+                                            onPressed: () {
+                                              // Close button logic
+                                            },
+                                            child: Icon(Icons.close),
+                                            style: ButtonStyle(
+                                              side: MaterialStateProperty.all(
+                                                BorderSide(
+                                                    color: AppColor.secondary),
+                                              ),
+                                              foregroundColor:
+                                                  MaterialStateProperty.all(
+                                                      AppColor.secondary),
+                                            ),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            if (await isConnected()) {
+                                              api _api = api();
+                                              String response =
+                                                  await _api.acceptRequest(
+                                                      widget.requests.id);
+                                              if (response == '200') {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                            'Request Accepted')));
+                                                widget.onRequestUpdated();
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                            'Failed to accept $response')));
+                                              }
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content:
+                                                          Text('No Internet')));
+                                            }
+                                          },
+                                          child: Icon(Icons.check),
+                                          style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      AppColor.primary),
+                                              foregroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.white)),
+                                        ),
+                                      ],
+                                    )
+                              : Container()
                     ]),
               ),
             ],

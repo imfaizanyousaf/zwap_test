@@ -1,5 +1,3 @@
-// This screen is used to edit a new post
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -12,6 +10,7 @@ import 'package:zwap_test/model/conditions.dart';
 import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
+import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
@@ -29,13 +28,13 @@ class EditNewPostScreen extends StatefulWidget {
 class _EditNewPostScreenState extends State<EditNewPostScreen> {
   api _api = api();
   final List<String> images = [];
-  List<File>? _images;
+  List<File>? _images = [];
   final picker = ImagePicker();
   Future getImage() async {
     final pickedFile = await picker.pickMultiImage();
     setState(() {
       if (pickedFile != null) {
-        _images = pickedFile.map((e) => File(e.path)).toList();
+        _images!.addAll(pickedFile.map((e) => File(e.path)).toList());
         images.addAll(pickedFile.map((e) => e.path).toList());
       } else {
         print('No image selected.');
@@ -44,11 +43,8 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
   }
 
   List<Categories> selectedCategories = [];
-
   List<Locations> selectedLocations = [];
-
   List<Conditions> selectedConditions = [];
-
   TextEditingController titleController = TextEditingController();
   TextEditingController descController = TextEditingController();
 
@@ -84,7 +80,7 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                 height: 200.0,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: images.length +
+                  itemCount: _images!.length +
                       1, // Add 1 for the "Add More Images" container
                   itemBuilder: (BuildContext context, int index) {
                     if (index == 0) {
@@ -99,28 +95,55 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                           child: Container(
                             width: 100.0,
                             height: 200.0,
-                            color: Colors.grey[300],
+                            color: AppColor.lightBlue,
                             child: Center(
                               child: Icon(
                                 Icons.add,
                                 size: 40.0,
-                                color: Colors.blue,
+                                color: AppColor.primary,
                               ),
                             ),
                           ),
                         ),
                       );
                     } else {
-                      // Display images in a horizontal list
-                      return Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: AspectRatio(
-                          aspectRatio: 1.0, // Maintain a square aspect ratio
-                          child: Image.file(
-                            File(images[index - 1]),
-                            fit: BoxFit.cover,
+                      // Display images in a horizontal list with a delete button
+                      return Stack(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: AspectRatio(
+                              aspectRatio:
+                                  1.0, // Maintain a square aspect ratio
+                              child: Image.file(
+                                _images![index - 1],
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _images!.removeAt(index - 1);
+                                    images.removeAt(index - 1);
+                                  });
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.all(8),
+                                  child: Icon(
+                                    shadows: [
+                                      Shadow(
+                                          color: Colors.black, blurRadius: 20)
+                                    ],
+                                    Icons.delete_outline_outlined,
+                                    color: Colors.white,
+                                  ),
+                                )),
+                          ),
+                        ],
                       );
                     }
                   },
@@ -145,7 +168,7 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                       maxLines: null,
                       controller: descController,
                       decoration: InputDecoration(
-                        labelText: 'Description',
+                        labelText: 'Exchange With',
                       ),
                     ),
                     Padding(
@@ -209,11 +232,12 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                                   fontSize: 16, color: Colors.black)),
                       trailing: Icon(Icons.arrow_right),
                       onTap: () async {
-                        // Perform asynchronous work
+                        User currentUser = await api().getUser(null);
                         List<Locations> result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LocationsPage(
+                              currentUser: currentUser,
                               initialSelectedItems: selectedLocations.isEmpty
                                   ? []
                                   : selectedLocations
@@ -331,8 +355,8 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                   images: images,
                 );
                 String response = await _api.addPost(newPost);
+                Navigator.pop(context);
                 if (response == '200') {
-                  Navigator.pop(context);
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -355,7 +379,7 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                 }
               } else {
                 showToast(
-                  message: "Please provide all the deatils",
+                  message: "Please provide all the details",
                 );
               }
             },

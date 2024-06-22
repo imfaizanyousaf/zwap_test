@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
@@ -19,7 +19,20 @@ class PostCard extends StatefulWidget {
 }
 
 class _PostCardState extends State<PostCard> {
-  final int image = 0;
+  int image = 0;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -172,25 +185,24 @@ class _PostCardState extends State<PostCard> {
                                         }
                                       },
                                     ),
-                                    ListTile(
-                                      leading: widget.post.userId ==
-                                              widget.currentUser.id
-                                          ? Icon(
-                                              Icons.delete_outline,
-                                              color: const Color.fromRGBO(
-                                                  244, 67, 54, 1),
-                                            )
-                                          : Icon(
-                                              Icons.flag_outlined,
-                                              color: const Color.fromRGBO(
-                                                  244, 67, 54, 1),
-                                            ),
-                                      title: widget.post.userId ==
-                                              widget.currentUser.id
-                                          ? Text('Delete')
-                                          : Text('Report'),
-                                      onTap: () => {},
-                                    ),
+                                    widget.post.userId == widget.currentUser.id
+                                        ? ListTile(
+                                            leading: widget.post.userId ==
+                                                    widget.currentUser.id
+                                                ? Icon(
+                                                    Icons.delete_outline,
+                                                    color: const Color.fromRGBO(
+                                                        244, 67, 54, 1),
+                                                  )
+                                                : Icon(
+                                                    Icons.flag_outlined,
+                                                    color: const Color.fromRGBO(
+                                                        244, 67, 54, 1),
+                                                  ),
+                                            title: Text('Delete'),
+                                            onTap: () => {},
+                                          )
+                                        : Container(),
                                   ],
                                 ),
                               ),
@@ -222,9 +234,10 @@ class _PostCardState extends State<PostCard> {
                                               post: widget.post)));
                             },
                             child: PageView(
-                              // controller: _model.pageViewController ??=
-                              //     PageController(initialPage: 0),
-                              // onPageChanged: (_) => setState(() {}),
+                              controller: _pageController,
+                              onPageChanged: (e) => setState(() {
+                                image = e;
+                              }),
                               clipBehavior: Clip.antiAliasWithSaveLayer,
                               scrollDirection: Axis.horizontal,
                               children: [
@@ -236,6 +249,7 @@ class _PostCardState extends State<PostCard> {
                                         itemBuilder: (context, index) {
                                           return Container(
                                             width: 400,
+                                            height: 400,
                                             child: Image.network(
                                               widget.post.imageUrls![index],
                                               fit: BoxFit.cover,
@@ -246,20 +260,7 @@ class _PostCardState extends State<PostCard> {
                                                 } else {
                                                   return Center(
                                                     child:
-                                                        CircularProgressIndicator(
-                                                      backgroundColor:
-                                                          Colors.grey,
-                                                      color: AppColor.primary,
-                                                      value: loadingProgress
-                                                                  .expectedTotalBytes !=
-                                                              null
-                                                          ? loadingProgress
-                                                                  .cumulativeBytesLoaded /
-                                                              loadingProgress
-                                                                  .expectedTotalBytes!
-                                                                  .toDouble()
-                                                          : null,
-                                                    ),
+                                                        CircularProgressIndicator(),
                                                   );
                                                 }
                                               },
@@ -279,41 +280,32 @@ class _PostCardState extends State<PostCard> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
+                widget.post.imageUrls != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            widget.post.imageUrls!.length,
+                            (index) {
+                              // this is the page indicator
+                              return Container(
+                                width: index == image ? 8 : 6,
+                                height: index == image ? 8 : 6,
+                                margin: EdgeInsets.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: index == image
+                                      ? Colors.white
+                                      : Colors.grey,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+                      )
+                    : Container(),
               ]),
               Row(
                 mainAxisSize: MainAxisSize.max,
@@ -323,12 +315,25 @@ class _PostCardState extends State<PostCard> {
                       condition: widget.post.condition == null
                           ? 'New'
                           : widget.post.condition!.name),
-                  Text(
-                    "Valencia, Spain",
-                    textAlign: TextAlign.end,
-                    style: TextStyle(
-                      fontSize: 12,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                      ),
+                      SizedBox(
+                        width: 2,
+                      ),
+                      Text(
+                        widget.post.locations != null
+                            ? widget.post.locations![0].name
+                            : '',
+                        textAlign: TextAlign.end,
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/post.dart';
@@ -10,7 +11,10 @@ import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/utils/number_formater.dart';
 import 'package:zwap_test/utils/token_manager.dart';
 import 'package:zwap_test/view/add_interests.dart';
+import 'package:zwap_test/view/add_locations.dart';
+import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/post_card.dart';
+import 'package:zwap_test/view/edit_new_post.dart';
 import 'package:zwap_test/view/edit_profile.dart';
 import 'package:zwap_test/view/filters/categories.dart';
 import 'package:zwap_test/view/user_auth/signin.dart';
@@ -99,6 +103,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               CircularProgressIndicator(
                 color: AppColor.primary,
               ),
+              SizedBox(
+                height: 16,
+              ),
+              Text(
+                'Aa rha hu bhai. Bas nikal aya',
+                style: TextStyle(fontSize: 12),
+              )
             ],
           ),
         ));
@@ -160,9 +171,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         },
                                       ),
                                       ListTile(
-                                        leading: Icon(Icons.copy),
+                                        leading:
+                                            Icon(Icons.location_on_outlined),
                                         title: Text('Edit Meeting Venues'),
-                                        onTap: () => {},
+                                        onTap: () => {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      AddLocationsScreen(
+                                                        previousScreen:
+                                                            'ProfileScreen',
+                                                      )))
+                                        },
                                       ),
                                       ListTile(
                                         leading: Icon(
@@ -416,7 +437,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             Column(
                               children: [
-                                Text('1.2k',
+                                Text('0',
                                     style: GoogleFonts.manrope(
                                       textStyle: TextStyle(
                                         fontSize: 14,
@@ -561,8 +582,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
-                          child: Text(
-                            'Your posts will appear here',
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/empty-states/posts.svg',
+                                width: 250,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Text(
+                                  'Your posts will appear here',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -571,8 +608,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
-                          child: Text(
-                            'No posts found',
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/empty-states/posts.svg',
+                                width: 250,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Text(
+                                  'No posts to display',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 200,
+                                child: PrimaryLarge(
+                                  color: Color.fromARGB(255, 232, 234, 246),
+                                  text: 'Create Post',
+                                  onPressed: () {
+                                    // navigate to edit_new_post.dart
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditNewPostScreen(
+                                            currentUser: widget.currentUser,
+                                          ),
+                                        ));
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
@@ -583,10 +654,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                     }
                   } else if (selectedIconIndex == 1) {
-                    return PostCard(
-                      post: favPosts[index],
-                      currentUser: widget.currentUser,
-                    );
+                    if (favPosts.isEmpty || favPosts == []) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/empty-states/interests.svg',
+                                width: 250,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Text(
+                                  'No faviourate posts',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.manrope(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      return PostCard(
+                        post: favPosts[index],
+                        currentUser: widget.currentUser,
+                      );
+                    }
                   } else {
                     // Handle other icons if needed
                     return Container();
@@ -594,8 +692,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
                 childCount: selectedIconIndex == 0
                     ? (widget.currentUser.posts?.length ?? 1)
-                    : (favPosts.length ??
-                        1), // Change the count based on your requirements
+                    : (favPosts.length ?? 1),
               ),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/categories.dart';
@@ -317,8 +318,17 @@ class _SearchScreenState extends State<SearchScreen> {
                           if (snapshot.hasData) {
                             if (snapshot.data!.isEmpty) {
                               return Center(
-                                child: Text(
-                                    "No items found for your search criteria."),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/empty-states/search.svg',
+                                      width: 250,
+                                    ),
+                                    Text(
+                                        "No items found for your search criteria."),
+                                  ],
+                                ),
                               );
                             }
                             return ListView.builder(

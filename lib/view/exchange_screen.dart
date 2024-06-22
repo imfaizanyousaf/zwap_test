@@ -70,7 +70,9 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
                 labelText: 'Write a message (Optional)',
               ),
               onChanged: (value) {
-                // Do something with the entered text
+                setState(() {
+                  messageController.text = value;
+                });
               },
             ),
           ),
@@ -143,7 +145,8 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
       persistentFooterButtons: [
         PrimaryLarge(
             text: 'Send Offer',
-            disabled: widget.exchangeWith == null,
+            disabled:
+                widget.exchangeWith == null || messageController.text.isEmpty,
             onPressed: () async {
               // show a loading dialog
               showDialog(
@@ -177,25 +180,31 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
                     context: context,
                     barrierDismissible: false,
                     builder: (BuildContext context) {
-                      return Dialog(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check_circle_outline,
-                                color: Colors.green,
-                              ),
-                              Text("Offer Sent!"),
-                            ],
-                          ),
+                      return AlertDialog(
+                        icon: Icon(Icons.check_circle,
+                            color: Colors.green, size: 48),
+                        title: Column(
+                          children: [
+                            Text("Offer Sent!"),
+                            Text(
+                              "Shabash mery sher!",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
                         ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
                       );
                     },
                   );
-                  Navigator.pop(context);
-                  Navigator.pop(context);
                 } else {
                   showDialog(
                     context: context,

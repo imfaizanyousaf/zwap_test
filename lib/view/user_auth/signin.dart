@@ -24,8 +24,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordController = TextEditingController();
   @override
   void initState() {
-    _emailController..text = "yousafmughal477@example.com";
-    _passwordController..text = "newpassword";
+    // _emailController..text = "yousafmughal477@example.com";
+    // _passwordController..text = "newpassword";
     super.initState();
   }
 
@@ -87,7 +87,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 TextFieldOutlined(
                   label: "Email",
                   valid: _validEmail,
-                  errorMessage: "Invalid Email",
+                  errorMessage: "Email sahi sy likh bhai",
                   keyboard: TextInputType.emailAddress,
                   controller: _emailController,
                   onChanged: (_emailController) {
@@ -99,7 +99,8 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Password",
-                  errorMessage: "Invalid Password",
+                  errorMessage:
+                      "Ex ka number yad rehta. Password nhi yad rakh skta?",
                   valid: _validPassword,
                   obscureText: true,
                   controller: _passwordController,

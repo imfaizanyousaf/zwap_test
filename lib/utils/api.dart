@@ -186,6 +186,21 @@ class api {
     }
   }
 
+  Future<int> assignLocations(int id, List<int> locations) async {
+    try {
+      final response = await _dio.post(
+        "${apiUrl}/locations/assign",
+        data: {
+          'user_id': id,
+          'location_id': locations,
+        },
+      );
+      return response.statusCode!;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   Future<List<Categories>> getUserIntersts(int id) async {
     try {
       final response = await _dio.get("${apiUrl}/categories/user/$id");
@@ -194,6 +209,22 @@ class api {
         List<Categories> categories =
             responseData.map((json) => Categories.fromJson(json)).toList();
         return categories;
+      } else {
+        throw Exception("Failed to load user interests ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load user interests: $e");
+    }
+  }
+
+  Future<List<Locations>> getUserLocations(int id) async {
+    try {
+      final response = await _dio.get("${apiUrl}/locations/user/$id");
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = response.data;
+        List<Locations> locations =
+            responseData.map((json) => Locations.fromJson(json)).toList();
+        return locations;
       } else {
         throw Exception("Failed to load user interests ${response.statusCode}");
       }
@@ -313,9 +344,79 @@ class api {
     }
   }
 
+  // Future<String> addPost(Post post) async {
+  //   try {
+  //     // Create FormData
+  //     // FormData formData = FormData.fromMap({
+  //     //   "title": post.title,
+  //     //   "description": post.description,
+  //     //   "user_id": post.userId,
+  //     //   "condition_id": post.conditionId,
+  //     //   "categories": post.categories != null
+  //     //       ? post.categories!.map((e) => e.id).toList()
+  //     //       : [],
+  //     //   "locations": post.locations != null
+  //     //       ? post.locations!.map((e) => e.id).toList()
+  //     //       : [],
+  //     //   "published": post.published,
+  //     //   "images": [
+  //     //     if (post.images != null)
+  //     //       {
+  //     //         for (String imagePath in post.images!)
+  //     //           await MultipartFile.fromFile(imagePath,
+  //     //               filename: imagePath.split('/').last),
+  //     //       }
+  //     //   ]
+  //     // });
+
+  //     // Send POST request
+  //     final response = await _dio.post(
+  //       "${apiUrl}/posts",
+  //       data: {
+  //         "title": post.title,
+  //         "description": post.description,
+  //         "user_id": post.userId,
+  //         "condition_id": post.conditionId,
+  //         "categories": post.categories != null
+  //             ? post.categories!.map((e) => e.id).toList()
+  //             : [],
+  //         "locations": post.locations != null
+  //             ? post.locations!.map((e) => e.id).toList()
+  //             : [],
+  //         "published": post.published,
+  //       },
+  //     );
+
+  //     // Handle response
+  //     if (response.statusCode! >= 200 && response.statusCode! < 300) {
+  //       return response.statusCode.toString();
+  //     } else {
+  //       return Future.error(response.statusCode.toString());
+  //     }
+  //   } on DioException catch (e) {
+  //     print('----------------REQUEST----------------');
+  //     var data = e.requestOptions.data;
+  //     print(data);
+  //     print('----------------RESPONSE----------------');
+  //     print(e.response?.data);
+  //     return e.response?.statusCode?.toString() ?? 'Unknown error';
+  //   }
+  // }
+
   //create an add Post function that takes in a post object and sends a post request to the api
   Future<String> addPost(Post post) async {
     try {
+      List<MultipartFile> imageFiles = [];
+      if (post.images != null) {
+        for (String imagePath in post.images!) {
+          final file = File(imagePath);
+          if (!await file.exists()) {
+            throw Exception("File does not exist");
+          }
+          imageFiles.add(await MultipartFile.fromFile(file.path,
+              filename: imagePath.split('/').last));
+        }
+      }
       // Create FormData
       FormData formData = FormData.fromMap({
         "title": post.title,
@@ -328,23 +429,16 @@ class api {
         "locations": post.locations != null
             ? post.locations!.map((e) => e.id).toList()
             : [],
-        "published": post.published,
-        "images": [
-          if (post.images != null)
-            {
-              for (String imagePath in post.images!)
-                await MultipartFile.fromFile(imagePath,
-                    filename: imagePath.split('/').last),
-            }
-        ]
-      });
+        "published": post.published == true ? 1 : 0,
+        "images": imageFiles,
+      }, ListFormat.multiCompatible);
 
       // Send POST request
       final response = await _dio.post(
         "${apiUrl}/posts",
         data: formData,
       );
-
+      print(formData.fields);
       // Handle response
       if (response.statusCode! >= 200 && response.statusCode! < 300) {
         return response.statusCode.toString();
@@ -576,6 +670,21 @@ class api {
     try {
       final response = await _dio.get(
         "${apiUrl}/requests/$requestId/accept",
+      );
+      if (response.statusCode == 200) {
+        return response.statusCode.toString();
+      } else {
+        throw Exception("Failed to load user posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load user posts: $e");
+    }
+  }
+
+  Future<String> rejectRequest(int requestId) async {
+    try {
+      final response = await _dio.get(
+        "${apiUrl}/requests/$requestId/reject",
       );
       if (response.statusCode == 200) {
         return response.statusCode.toString();

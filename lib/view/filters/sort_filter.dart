@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/filters/categories.dart';
 import 'package:zwap_test/view/filters/item_condition.dart';
 import 'package:zwap_test/view/filters/locations.dart';
+
+import '../../utils/api.dart';
 
 class SortFilter extends StatefulWidget {
   var initialFilters;
@@ -184,11 +187,12 @@ class _SortFilterState extends State<SortFilter> {
                         .replaceAll(']', '')),
                 trailing: Icon(Icons.arrow_right),
                 onTap: () async {
-                  // Perform asynchronous work
+                  User currentUser = await api().getUser(null);
                   var result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => LocationsPage(
+                        currentUser: currentUser,
                         initialSelectedItems: selectedLocations,
                       ),
                     ),

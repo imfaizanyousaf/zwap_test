@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:zwap_test/model/categories.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/utils/connection.dart';
+import 'package:zwap_test/view/add_interests.dart';
+import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/view/notifications.dart';
@@ -139,12 +142,9 @@ class _CardListState extends State<CardList> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.wifi_off,
-                      size: 56,
-                    ),
-                    SizedBox(
-                      height: 8,
+                    SvgPicture.asset(
+                      'assets/empty-states/no-connection.svg',
+                      width: 250,
                     ),
                     Text('No Internet Connection'),
                     SizedBox(
@@ -170,7 +170,58 @@ class _CardListState extends State<CardList> {
                       child: Text(
                           "Error: ${snapshot.error}")); // Display an error message if data fetching fails
                 } else if (snapshot.data!.isEmpty) {
-                  return Center(child: Text("No posts available"));
+                  bool hasInterests;
+
+                  Future<List<Categories>> interests =
+                      userViewModel.getUserIntersts(widget.currentUser.id);
+                  if (interests != null || interests != []) {
+                    hasInterests = true;
+                  } else {
+                    hasInterests = false;
+                  }
+                  if (hasInterests) {
+                    return Center(
+                        child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/empty-states/interests.svg',
+                          width: 250,
+                        ),
+                        Text(
+                            'You have not set up any interests yet. Add some to see posts that you might like!'),
+                        Container(
+                          width: 200,
+                          child: PrimaryLarge(
+                            color: Color.fromARGB(255, 232, 234, 246),
+                            text: 'Add Interests',
+                            onPressed: () {
+                              // navigate to edit_new_post.dart
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AddInterestsScreen(
+                                      previousScreen: 'ProfileScreen',
+                                    ),
+                                  ));
+                            },
+                          ),
+                        ),
+                      ],
+                    ));
+                  }
+
+                  return Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/empty-states/posts.svg',
+                        width: 250,
+                      ),
+                      Text('No Posts Available'),
+                    ],
+                  ));
                 } else {
                   return ListView.builder(
                     itemCount: snapshot.data!.length,

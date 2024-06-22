@@ -7,7 +7,7 @@ class DioInterceptor extends Interceptor {
       RequestOptions options, RequestInterceptorHandler handler) async {
     final token = await TokenManager.getToken();
 
-    options.headers['Content-Type'] = 'application/json';
+    options.headers['Accept'] = 'application/json';
     if (!token.contains('html')) {
       options.headers['Authorization'] = "Bearer $token";
     }

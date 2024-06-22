@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/global/commons/toast.dart';
-import 'package:zwap_test/model/categories.dart';
+import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/utils/connection.dart';
-import 'package:zwap_test/view/add_locations.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/home.dart';
 
-class AddInterestsScreen extends StatefulWidget {
+class AddLocationsScreen extends StatefulWidget {
   final String previousScreen;
   List<int> initialSelectedItems = [];
 
-  AddInterestsScreen({
+  AddLocationsScreen({
     Key? key,
     required this.previousScreen,
   }) : super(key: key);
 
   @override
-  _AddInterestsScreenState createState() => _AddInterestsScreenState();
+  _AddLocationsScreenState createState() => _AddLocationsScreenState();
 }
 
-class _AddInterestsScreenState extends State<AddInterestsScreen> {
-  List<int> categoriesSelected = [];
+class _AddLocationsScreenState extends State<AddLocationsScreen> {
+  List<int> locationsSelected = [];
 
   api user = api();
   bool connected = true;
@@ -33,14 +32,14 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
   void initState() {
     super.initState();
     checkConnection();
-    setInitialCategories();
+    setInitialLocations();
   }
 
-  void setInitialCategories() async {
+  void setInitialLocations() async {
     User currentUser = await user.getUser(null);
-    List<Categories> categories = await user.getUserIntersts(currentUser.id);
+    List<Locations> locations = await user.getUserLocations(currentUser.id);
     setState(() {
-      categoriesSelected = categories.map((e) => e.id!).toList();
+      locationsSelected = locations.map((e) => e.id!).toList();
     });
   }
 
@@ -53,7 +52,7 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool savingCategories = false;
+    bool savingLocations = false;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: AppColor.background,
@@ -73,8 +72,8 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                       ),
                       Text(
                         widget.previousScreen == 'SignUpScreen'
-                            ? 'What are your interests?'
-                            : 'Edit your interests',
+                            ? 'Set Your Meeting Venues?'
+                            : 'Edit Your Meeting Venues',
                         style: GoogleFonts.manrope(
                           textStyle: TextStyle(
                             fontSize: 24,
@@ -101,23 +100,23 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                         height: 16,
                       ),
                       connected
-                          ? FutureBuilder<List<Categories>>(
-                              future: user.getCategories(),
+                          ? FutureBuilder<List<Locations>>(
+                              future: user.getLocations(),
                               builder: (context, snapshot) {
                                 if (snapshot.hasData) {
-                                  List<Categories> categories = snapshot.data!;
+                                  List<Locations> locations = snapshot.data!;
 
                                   return Wrap(
                                     spacing:
                                         8.0, // Horizontal space between chips
                                     runSpacing:
                                         4.0, // Vertical space between lines
-                                    children: categories.map((category) {
-                                      bool isSelected = categoriesSelected
-                                          .contains(category.id!);
+                                    children: locations.map((location) {
+                                      bool isSelected = locationsSelected
+                                          .contains(location.id!);
                                       return FilterChip(
                                         label: Text(
-                                          category.name!,
+                                          location.name!,
                                           textAlign: TextAlign.center,
                                           style: GoogleFonts.manrope(
                                             fontSize: 14,
@@ -137,14 +136,14 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                                         onSelected: (value) {
                                           setState(() {
                                             if (value) {
-                                              categoriesSelected
-                                                  .add(category.id!);
+                                              locationsSelected
+                                                  .add(location.id!);
                                             } else {
-                                              categoriesSelected
-                                                  .remove(category.id!);
+                                              locationsSelected
+                                                  .remove(location.id!);
                                             }
                                           });
-                                          print(categoriesSelected);
+                                          print(locationsSelected);
                                         },
                                       );
                                     }).toList(),
@@ -198,15 +197,20 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColor.lightBlue,
                                 ),
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AddLocationsScreen(
-                                        previousScreen: "SignUpScreen",
+                                onPressed: () async {
+                                  checkConnection();
+                                  if (connected) {
+                                    User currentUser = await user.getUser(null);
+
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => HomeScreen(
+                                          currentUser: currentUser,
+                                        ),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  }
                                 },
                                 child:
                                     Text('Skip', style: GoogleFonts.manrope()),
@@ -217,28 +221,26 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                         Expanded(
                           child: PrimaryLarge(
                             disabled:
-                                (categoriesSelected.isEmpty || savingCategories)
+                                (locationsSelected.isEmpty || savingLocations)
                                     ? true
                                     : false,
                             text: widget.previousScreen == 'SignUpScreen'
                                 ? "Continue"
                                 : "Save",
-                            loading: savingCategories,
-                            onPressed: (categoriesSelected.isEmpty)
+                            loading: savingLocations,
+                            onPressed: (locationsSelected.isEmpty)
                                 ? null
                                 : () async {
                                     setState(() {
-                                      savingCategories = true;
+                                      savingLocations = true;
                                     });
                                     checkConnection();
                                     if (connected) {
                                       User currentUser =
                                           await user.getUser(null);
 
-                                      var response =
-                                          await user.assignCategories(
-                                              currentUser.id,
-                                              categoriesSelected);
+                                      var response = await user.assignLocations(
+                                          currentUser.id, locationsSelected);
                                       if (response == 200) {
                                         if (widget.previousScreen ==
                                             'ProfileScreen') {
@@ -248,9 +250,8 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                  AddLocationsScreen(
-                                                previousScreen: "SignUpScreen",
+                                              builder: (context) => HomeScreen(
+                                                currentUser: currentUser,
                                               ),
                                             ),
                                           );
@@ -261,7 +262,7 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                                           message: 'No Internet Connection');
                                     }
                                     setState(() {
-                                      savingCategories = false;
+                                      savingLocations = false;
                                     });
                                   },
                           ),

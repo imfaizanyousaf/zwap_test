@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/model/request.dart';
 import 'package:zwap_test/model/user.dart';
@@ -23,11 +24,13 @@ class _RequestScreenState extends State<RequestScreen> {
     User? user = await _api.getUser(null);
     List<Request> tempRequests = await _api.getReceivedRequests();
     List<Request> tempSentRequests = await _api.getSentRequests();
-    setState(() {
-      _currentUser = user;
-      requestsReceived = tempRequests;
-      requestsSent = tempSentRequests;
-    });
+    if (mounted) {
+      setState(() {
+        _currentUser = user;
+        requestsReceived = tempRequests;
+        requestsSent = tempSentRequests;
+      });
+    }
   }
 
   @override
@@ -132,6 +135,8 @@ class _CardListState extends State<CardList> {
   bool _isConnected = false;
   api _api = api();
   List<Request> requests = [];
+  final GlobalKey<_RequestScreenState> _parentKey =
+      GlobalKey<_RequestScreenState>();
 
   void fetchRequests() async {
     List<Request> tempRequests = widget.tabTitle == 'Sent'
@@ -140,9 +145,11 @@ class _CardListState extends State<CardList> {
 
     tempRequests =
         tempRequests.where((element) => element.status == 'pending').toList();
-    setState(() {
-      requests = tempRequests;
-    });
+    if (mounted) {
+      setState(() {
+        requests = tempRequests;
+      });
+    }
   }
 
   @override
@@ -154,9 +161,11 @@ class _CardListState extends State<CardList> {
   void checkConnection() async {
     bool connected =
         await isConnected(); // Assuming isConnected is defined in connection.dart
-    setState(() {
-      _isConnected = connected;
-    });
+    if (mounted) {
+      setState(() {
+        _isConnected = connected;
+      });
+    }
   }
 
   @override
@@ -168,12 +177,9 @@ class _CardListState extends State<CardList> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.wifi_off,
-                      size: 56,
-                    ),
-                    SizedBox(
-                      height: 8,
+                    SvgPicture.asset(
+                      'assets/empty-states/no-connection.svg',
+                      width: 250,
                     ),
                     Text('No Internet Connection'),
                     SizedBox(
@@ -201,10 +207,22 @@ class _CardListState extends State<CardList> {
                       child: Text(
                           "Error: ${snapshot.error}")); // Display an error message if data fetching fails
                 } else if (snapshot.data!.isEmpty) {
-                  return Center(child: Text("No Requests available"));
+                  return Center(
+                      child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/empty-states/empty-cart.svg',
+                        width: 250,
+                      ),
+                      Text('No Requests Available'),
+                    ],
+                  ));
                 } else {
                   List<Request> filteredRequests = snapshot.data!
-                      .where((element) => element.status == 'pending')
+                      .where((element) =>
+                          element.status == 'pending' ||
+                          element.status == 'accepted')
                       .toList();
                   if (filteredRequests.isEmpty) {
                     return Center(child: Text("No Requests available"));
@@ -213,6 +231,8 @@ class _CardListState extends State<CardList> {
                     itemCount: filteredRequests.length,
                     itemBuilder: (context, index) {
                       return RequestCard(
+                          key: ValueKey(filteredRequests[index].id),
+                          onRequestUpdated: fetchRequests,
                           requests: filteredRequests[index],
                           currentUser: widget.currentUser);
                     },
