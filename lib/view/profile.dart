@@ -106,10 +106,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               SizedBox(
                 height: 16,
               ),
-              Text(
-                'Aa rha hu bhai. Bas nikal aya',
-                style: TextStyle(fontSize: 12),
-              )
             ],
           ),
         ));
@@ -271,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               color: Color(0xff000000),
                                             ),
                                           )),
-                                      Text('@faizan.usuf',
+                                      Text('Level 1',
                                           style: GoogleFonts.getFont(
                                             "Manrope",
                                             textStyle: TextStyle(

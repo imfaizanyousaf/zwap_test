@@ -45,6 +45,7 @@ dependencies:
   shared_preferences: ^2.2.3
   timeago: ^3.1.0
   connectivity_plus: ^6.0.3
+  pusher_channels_flutter: ^2.2.1
   
 dev_dependencies:
   flutter_test:

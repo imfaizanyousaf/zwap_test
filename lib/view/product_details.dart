@@ -426,7 +426,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                                 color: Color(0xff000000),
                                               ),
                                             )),
-                                        Text('@faizan.usuf',
+                                        Text('Level 1',
                                             style: GoogleFonts.getFont(
                                               "Manrope",
                                               textStyle: TextStyle(

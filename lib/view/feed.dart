@@ -188,8 +188,15 @@ class _CardListState extends State<CardList> {
                           'assets/empty-states/interests.svg',
                           width: 250,
                         ),
-                        Text(
-                            'You have not set up any interests yet. Add some to see posts that you might like!'),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 16),
+                          child: Text(
+                            'You have not set up any interests yet. Add some to see posts',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(),
+                          ),
+                        ),
                         Container(
                           width: 200,
                           child: PrimaryLarge(

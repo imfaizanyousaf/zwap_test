@@ -86,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 TextFieldOutlined(
                   label: "First Name",
-                  errorMessage: "First name tera baap bhary ga?",
+                  errorMessage: "First name is required",
                   controller: _firstNameController,
                   onChanged: (_firstNameController) {
                     isFirstNameValid();
@@ -98,7 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Last Name",
-                  errorMessage: "Last name tera baap bhary ga?",
+                  errorMessage: "Last name is required",
                   controller: _lastNameController,
                   onChanged: (_lastNameController) {
                     isLastNameValid();
@@ -111,8 +111,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFieldOutlined(
                   label: "Email",
                   errorMessage: _emailController.text.isEmpty
-                      ? "Email lazmi chahye mery ko"
-                      : "Email sahi sy likh bhai",
+                      ? "Email is required"
+                      : "Invalid Email",
                   controller: _emailController,
                   valid: _validEmail,
                   keyboard: TextInputType.emailAddress,
@@ -127,7 +127,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   label: "Password",
                   valid: _validPassword,
                   errorMessage: _passwordController.text.isEmpty
-                      ? "Password to bht zaroori ha"
+                      ? "Password is required"
                       : "Minimum password length must be 8",
                   onChanged: (_passwordController) {
                     isPasswordValid();

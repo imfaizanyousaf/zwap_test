@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/res/colors/colors.dart';
+import 'package:zwap_test/view/chat_room.dart';
 import 'package:zwap_test/view/profile.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -26,10 +27,10 @@ class ChatScreen extends StatelessWidget {
           builder: (BuildContext context) {
             return GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => ProfileScreen()),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChatRoom()),
+                );
               },
               child: Container(
                 margin: EdgeInsets.all(12),
