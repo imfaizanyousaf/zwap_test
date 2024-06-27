@@ -300,7 +300,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               SizedBox(
                                                 width: 4,
                                               ),
-                                              Text('Level 1',
+                                              Text(
+                                                  widget.trades < 10
+                                                      ? 'Level 1'
+                                                      : 'Level 2',
                                                   style: GoogleFonts.getFont(
                                                     "Manrope",
                                                     textStyle: TextStyle(

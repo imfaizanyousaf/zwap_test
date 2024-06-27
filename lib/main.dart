@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> {
 
     final response = await _dio.post(
       "https://zwap.codeshar.com/broadcasting/auth",
+      data: {"channel_name": "chat-channel-2", "socket_id": "$socketId"},
       options: Options(
         headers: {
           'Authorization': 'Bearer $token',
@@ -103,12 +104,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     // initializePusher();
-  }
-
-  @override
-  void dispose() {
-    // PusherChannelsFlutter.getInstance().disconnect();
-    super.dispose();
   }
 
   @override
