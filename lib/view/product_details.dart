@@ -439,18 +439,41 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                                 color: Color(0xff000000),
                                               ),
                                             )),
-                                        Text('Level 1',
-                                            style: GoogleFonts.getFont(
-                                              "Manrope",
-                                              textStyle: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                height: 1.6,
-                                                letterSpacing: 0.150000006,
-                                                color: Color.fromARGB(
-                                                    255, 71, 71, 71),
-                                              ),
-                                            )),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColor.lightBlue,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 0.0, horizontal: 8),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.stars_rounded,
+                                                    size: 12,
+                                                    color: AppColor.primary),
+                                                SizedBox(
+                                                  width: 4,
+                                                ),
+                                                Text('Level 1',
+                                                    style: GoogleFonts.getFont(
+                                                      "Manrope",
+                                                      textStyle: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        height: 1.6,
+                                                        letterSpacing:
+                                                            0.150000006,
+                                                        color: Color.fromARGB(
+                                                            255, 71, 71, 71),
+                                                      ),
+                                                    )),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   )
