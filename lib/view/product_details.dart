@@ -11,6 +11,7 @@ import 'package:zwap_test/view/edit_profile.dart';
 import 'package:zwap_test/view/exchange_screen.dart';
 import 'package:zwap_test/view/new_post.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:zwap_test/view/profile.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Post post;
@@ -110,10 +111,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: widget.post.imageUrls != null
                   ? PageView.builder(
-                      itemCount: widget.post.imageUrls!.length,
+                      itemCount: (widget.post.imageUrls == null ||
+                              widget.post.imageUrls!.isEmpty ||
+                              widget.post.imageUrls == [])
+                          ? 1
+                          : widget.post.imageUrls!.length,
                       itemBuilder: (context, index) {
                         return Image.network(
-                          widget.post.imageUrls![index],
+                          (widget.post.imageUrls == null ||
+                                  widget.post.imageUrls!.isEmpty ||
+                                  widget.post.imageUrls == [])
+                              ? "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+                              : widget.post.imageUrls![index],
                           fit: BoxFit.cover,
                         );
                       },
@@ -133,7 +142,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    images.length,
+                    (widget.post.imageUrls == null ||
+                            widget.post.imageUrls!.isEmpty ||
+                            widget.post.imageUrls == [])
+                        ? 1
+                        : widget.post.imageUrls!.length,
                     (index) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Container(
@@ -449,6 +462,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         MaterialStateProperty.all<Color>(
                                             AppColor.primary)),
                                 onPressed: () {
+                                  if (currentUser != null &&
+                                      widget.post.userId != currentUser!.id) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ProfileScreen(
+                                                currentUser: widget.post.user!,
+                                              )),
+                                    );
+                                  }
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -458,7 +481,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 },
                                 child: (currentUser != null &&
                                         widget.post.userId != currentUser!.id)
-                                    ? Text('Follow')
+                                    ? Text('View Profile')
                                     : Text('Edit Profile'),
                                 // child: Icon(Icons.message),
                               ),

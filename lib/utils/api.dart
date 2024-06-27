@@ -128,6 +128,25 @@ class api {
     }
   }
 
+  Future<List<User>> getAllUsers() async {
+    String url;
+
+    url = "${apiUrl}/users";
+
+    try {
+      final response = await _dio.get(url);
+      if (response.statusCode == 200) {
+        List<User> users =
+            (response.data as List).map((json) => User.fromJson(json)).toList();
+        return users;
+      } else {
+        throw Future.error(response);
+      }
+    } on DioException catch (e) {
+      throw Future.error(e);
+    }
+  }
+
   Future<String> updateUser(User user, {String? filePath}) async {
     try {
       // Validate the file path
@@ -269,6 +288,20 @@ class api {
     }
   }
 
+  Future<Post> getPostById(int postId) async {
+    try {
+      final response = await _dio.get(apiUrl + "/posts/$postId");
+      if (response.statusCode == 200) {
+        Post post = Post.fromJson(response.data);
+        return post;
+      } else {
+        throw Exception("Failed to load posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load postss: $e");
+    }
+  }
+
   Future<List<Post>> getPostsForYou(int userId) async {
     try {
       final response = await _dio.get(apiUrl + "/posts/foryou/$userId");
@@ -292,7 +325,6 @@ class api {
         'query': query,
         'categories': categories,
         'locations': locations,
-        'conditions': conditions,
       });
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;

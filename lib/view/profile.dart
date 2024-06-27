@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/post.dart';
+import 'package:zwap_test/model/request.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
@@ -26,7 +27,7 @@ class ProfileScreen extends StatefulWidget {
   List<User> following = [];
   List<User> loggedInUserFollowing = [];
   List<User> loggedInUserFollowedBy = [];
-
+  int trades = 0;
   ProfileScreen({required this.currentUser});
 
   @override
@@ -44,6 +45,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       api _api = api();
       bool tempIsFollowing = false;
       User user = await _api.getUser(widget.currentUser.id);
+      List<Request> requests = await _api.getReceivedRequests();
+      List<Request> requestsSent = await _api.getSentRequests();
+
+      // join requests and requestsSent to get all requests with status 'accepted'
+      List<Request> acceptedRequests = requests
+              .map((e) => e)
+              .where((element) => element.status == 'accepted')
+              .toList() +
+          requestsSent
+              .map((e) => e)
+              .where((element) => element.status == 'accepted')
+              .toList();
+
       List<Post> userPosts = await _api.getPostsByUser(user.id);
       User tempUser = await _api.getUser(null);
       List<Post> tempFavPosts = await _api.getFavPosts(widget.currentUser.id);
@@ -77,6 +91,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           widget.following = tempFollowing;
 
           isFollowing = tempIsFollowing;
+
+          widget.trades = acceptedRequests.length;
         });
       }
     } catch (e) {
@@ -433,7 +449,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             Column(
                               children: [
-                                Text('0',
+                                Text(widget.trades.toString(),
                                     style: GoogleFonts.manrope(
                                       textStyle: TextStyle(
                                         fontSize: 14,

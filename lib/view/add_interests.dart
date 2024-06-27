@@ -39,9 +39,11 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
   void setInitialCategories() async {
     User currentUser = await user.getUser(null);
     List<Categories> categories = await user.getUserIntersts(currentUser.id);
-    setState(() {
-      categoriesSelected = categories.map((e) => e.id!).toList();
-    });
+    if (mounted) {
+      setState(() {
+        categoriesSelected = categories.map((e) => e.id!).toList();
+      });
+    }
   }
 
   void checkConnection() async {

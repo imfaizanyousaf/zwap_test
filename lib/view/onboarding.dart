@@ -117,33 +117,6 @@ class OnboardingScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Expanded(
-                                child: TextButton(
-                                    style: ButtonStyle(
-                                      elevation: MaterialStateProperty.all(0),
-                                      backgroundColor:
-                                          MaterialStateProperty.all(
-                                              AppColor.background),
-                                      foregroundColor:
-                                          MaterialStateProperty.all(
-                                              AppColor.primary),
-                                    ),
-                                    onPressed: () {
-                                      // Navigator.pushAndRemoveUntil(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //       builder: (context) => HomeScreen()),
-                                      //   (route) => false,
-                                      // );
-                                    },
-                                    child: Text("Guest Mode")),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     )

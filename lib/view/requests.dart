@@ -7,6 +7,7 @@ import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/utils/connection.dart';
 import 'package:zwap_test/view/components/request_card.dart';
+import 'package:zwap_test/view/notifications.dart';
 import 'package:zwap_test/view/profile.dart';
 
 class RequestScreen extends StatefulWidget {
@@ -92,7 +93,13 @@ class _RequestScreenState extends State<RequestScreen> {
               color: Colors.black,
             ),
             onPressed: () {
-              // Handle notification icon tap
+              // push to notifications screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationsScreen(),
+                ),
+              );
             },
           ),
         ],

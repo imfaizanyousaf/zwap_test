@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import 'package:zwap_test/global/commons/toast.dart';
+import 'package:zwap_test/utils/conversation_mannager.dart';
 import 'package:zwap_test/utils/dio_interceptor.dart';
+import 'package:zwap_test/utils/token_manager.dart';
 import 'package:zwap_test/view/onboarding.dart';
 import 'package:zwap_test/view/splash_screen.dart';
 import 'dart:convert';
@@ -45,20 +47,23 @@ class _MyAppState extends State<MyApp> {
     _dio.interceptors.add(LogInterceptor(
       requestHeader: true,
     ));
-    showToast(message: "Authorizing channel");
+    final token = await TokenManager.getToken();
+
+    showToast(message: token);
+
     final response = await _dio.post(
       "https://zwap.codeshar.com/broadcasting/auth",
       options: Options(
         headers: {
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
       ),
     );
-
     if (response.statusCode == 200) {
       final authData = json.decode(response.data);
       return {
-        'auth': 'auth',
+        'auth': 'socket_id=' + socketId + '&channel_name=' + channelName,
         'channel_data': authData,
         "shared_secret": "foobar"
       };
@@ -97,7 +102,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initializePusher();
+    // initializePusher();
+  }
+
+  @override
+  void dispose() {
+    // PusherChannelsFlutter.getInstance().disconnect();
+    super.dispose();
   }
 
   @override

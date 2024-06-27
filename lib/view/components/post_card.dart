@@ -245,13 +245,25 @@ class _PostCardState extends State<PostCard> {
                                     ? ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         itemCount:
-                                            widget.post.imageUrls!.length,
+                                            (widget.post.imageUrls == null ||
+                                                    widget.post.imageUrls!
+                                                        .isEmpty ||
+                                                    widget.post.imageUrls == [])
+                                                ? 1
+                                                : widget.post.imageUrls!.length,
                                         itemBuilder: (context, index) {
                                           return Container(
                                             width: 400,
                                             height: 400,
                                             child: Image.network(
-                                              widget.post.imageUrls![index],
+                                              (widget.post.imageUrls == null ||
+                                                      widget.post.imageUrls!
+                                                          .isEmpty ||
+                                                      widget.post.imageUrls ==
+                                                          [])
+                                                  ? "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+                                                  : widget
+                                                      .post.imageUrls![index],
                                               fit: BoxFit.cover,
                                               loadingBuilder: (context, child,
                                                   loadingProgress) {
@@ -287,7 +299,11 @@ class _PostCardState extends State<PostCard> {
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
-                            widget.post.imageUrls!.length,
+                            (widget.post.imageUrls == null ||
+                                    widget.post.imageUrls!.isEmpty ||
+                                    widget.post.imageUrls == [])
+                                ? 1
+                                : widget.post.imageUrls!.length,
                             (index) {
                               // this is the page indicator
                               return Container(

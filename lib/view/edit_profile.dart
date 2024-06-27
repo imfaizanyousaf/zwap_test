@@ -85,7 +85,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: CircleAvatar(
                   radius: 50,
                   backgroundImage: _image == null
-                      ? AssetImage("assets/avatar.jpg")
+                      ? NetworkImage(currentUser!.logo ??
+                          "https://avatar.iran.liara.run/username?username=${currentUser!.firstName}+${currentUser!.lastName}")
                       : FileImage(_image!) as ImageProvider),
             ),
             SizedBox(

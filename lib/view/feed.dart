@@ -200,7 +200,7 @@ class _CardListState extends State<CardList> {
                         Container(
                           width: 200,
                           child: PrimaryLarge(
-                            color: Color.fromARGB(255, 232, 234, 246),
+                            color: AppColor.lightBlue,
                             text: 'Add Interests',
                             onPressed: () {
                               // navigate to edit_new_post.dart

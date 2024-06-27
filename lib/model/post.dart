@@ -60,7 +60,11 @@ class Post {
           ? DateTime.parse(json['updated_at'])
           : DateTime.now(),
       user: json['user'] != null ? User.fromJson(json['user']) : null,
-      imageUrls: json['image_urls'],
+      imageUrls: json['image_urls'] == [] || json['image_urls'] == null
+          ? [
+              "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
+            ]
+          : json['image_urls'],
       condition: json['condition'] != null
           ? Conditions.fromJson(json['condition'])
           : null,

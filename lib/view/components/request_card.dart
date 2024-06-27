@@ -1,14 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/request.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
 import 'package:zwap_test/utils/connection.dart';
+import 'package:zwap_test/view/chat_room.dart';
 import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/home.dart';
+import 'package:zwap_test/view/product_details.dart';
 import 'package:zwap_test/view/requests.dart';
 
 class RequestCard extends StatefulWidget {
@@ -29,12 +34,27 @@ class RequestCard extends StatefulWidget {
 class _RequestCardState extends State<RequestCard> {
   final int image = 0;
   String requestedToName = "";
-
+  String imageUrlRequested =
+      'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg';
+  String imageUrlExchanged =
+      'https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg';
   void getRequestedToName() async {
     api _api = api();
     User requestedTo = await _api.getUser(widget.requests.requestedPost.userId);
     if (mounted) {
       setState(() {
+        if (widget.requests.requestedPost.imageUrls == [] ||
+            widget.requests.requestedPost.imageUrls == null ||
+            widget.requests.requestedPost.imageUrls!.isEmpty) {
+        } else {
+          imageUrlRequested = widget.requests.requestedPost.imageUrls![0];
+        }
+        if (widget.requests.exchangedPost.imageUrls == [] ||
+            widget.requests.exchangedPost.imageUrls == null ||
+            widget.requests.exchangedPost.imageUrls!.isEmpty) {
+        } else {
+          imageUrlExchanged = widget.requests.exchangedPost.imageUrls![0];
+        }
         requestedToName = requestedTo.firstName + ' ' + requestedTo.lastName;
       });
     }
@@ -205,28 +225,73 @@ class _RequestCardState extends State<RequestCard> {
                         borderRadius: BorderRadius.circular(8),
                         child: AspectRatio(
                           aspectRatio: 1.0,
-                          child: Image.network(
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) {
-                                return child;
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                                .toDouble()
-                                        : null,
+                          child: InkWell(
+                            onTap: () async {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                      content: Container(
+                                    height: 100,
+                                    width: 100,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        CircularProgressIndicator(
+                                          color: AppColor.primary,
+                                        ),
+                                      ],
+                                    ),
+                                  ));
+                                },
+                              );
+                              api _api = api();
+                              Post post = await _api.getPostById(
+                                  widget.requests.exchangedPost.id!);
+                              Navigator.pop(context);
+                              if (post != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProductDetailsScreen(
+                                      post: post,
+                                    ),
                                   ),
                                 );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text('Failed to load post')));
                               }
                             },
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(Icons.error),
-                            'https://picsum.photos/1080/1080',
-                            fit: BoxFit.cover,
+                            child: Image.network(
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                                      .toDouble()
+                                              : null,
+                                    ),
+                                  );
+                                }
+                              },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.error),
+                              imageUrlExchanged,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -238,28 +303,74 @@ class _RequestCardState extends State<RequestCard> {
                         borderRadius: BorderRadius.circular(8),
                         child: AspectRatio(
                           aspectRatio: 1.0,
-                          child: Image.network(
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) {
-                                return child;
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                                .toDouble()
-                                        : null,
+                          child: InkWell(
+                            onTap: () async {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                      content: Container(
+                                    height: 100,
+                                    width: 100,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        CircularProgressIndicator(
+                                          color: AppColor.primary,
+                                        ),
+                                      ],
+                                    ),
+                                  ));
+                                },
+                              );
+                              api _api = api();
+                              Post post = await _api.getPostById(
+                                  widget.requests.requestedPost.id!);
+                              print("Requested Post" + post.toString());
+                              Navigator.pop(context);
+                              if (post != null) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProductDetailsScreen(
+                                      post: post,
+                                    ),
                                   ),
                                 );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text('Failed to load post')));
                               }
                             },
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(Icons.error),
-                            'https://picsum.photos/1080/1080',
-                            fit: BoxFit.cover,
+                            child: Image.network(
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                if (loadingProgress == null) {
+                                  return child;
+                                } else {
+                                  return Center(
+                                    child: CircularProgressIndicator(
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                                      .toDouble()
+                                              : null,
+                                    ),
+                                  );
+                                }
+                              },
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.error),
+                              imageUrlRequested,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -290,7 +401,18 @@ class _RequestCardState extends State<RequestCard> {
                       widget.requests.status == 'accepted'
                           ? Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {},
+                                onPressed: () async {
+                                  //push to ChatRoom screen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ChatRoom(
+                                        sender: widget.currentUser!,
+                                        receiver: widget.requests.requestedBy,
+                                      ),
+                                    ),
+                                  );
+                                },
                                 child: Text('Chat'),
                                 style: ButtonStyle(
                                     side: MaterialStateProperty.all(
