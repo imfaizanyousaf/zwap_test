@@ -87,7 +87,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 TextFieldOutlined(
                   label: "Email",
                   valid: _validEmail,
-                  errorMessage: "Email sahi sy likh bhai",
+                  errorMessage: "Invalid Email",
                   keyboard: TextInputType.emailAddress,
                   controller: _emailController,
                   onChanged: (_emailController) {
@@ -99,8 +99,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 TextFieldOutlined(
                   label: "Password",
-                  errorMessage:
-                      "Ex ka number yad rehta. Password nhi yad rakh skta?",
+                  errorMessage: "Invalid Password",
                   valid: _validPassword,
                   obscureText: true,
                   controller: _passwordController,

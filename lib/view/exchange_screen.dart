@@ -67,7 +67,7 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
             child: TextField(
               controller: messageController,
               decoration: InputDecoration(
-                labelText: 'Write a message (Optional)',
+                labelText: 'Write a message',
               ),
               onChanged: (value) {
                 setState(() {
@@ -148,81 +148,83 @@ class _ExchangeScreenState extends State<ExchangeScreen> {
             disabled:
                 widget.exchangeWith == null || messageController.text.isEmpty,
             onPressed: () async {
-              // show a loading dialog
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) {
-                  return Dialog(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(width: 16),
-                          Text("Sending Offer..."),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-              if (widget.exchangeWith != null) {
-                api _api = api();
-                String response = await _api.addRequest(
-                    widget.requestedPost.id!,
-                    widget.exchangeWith!.id!,
-                    messageController.text);
-                Navigator.pop(context);
-                if (response == '200') {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        icon: Icon(Icons.check_circle,
-                            color: Colors.green, size: 48),
-                        title: Column(
+              if (widget.exchangeWith != null &&
+                  messageController.text.isNotEmpty) {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return Dialog(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text("Offer Sent!"),
-                            Text(
-                              "Shabash mery sher!",
-                              style: TextStyle(fontSize: 12),
-                            ),
+                            CircularProgressIndicator(),
+                            SizedBox(width: 16),
+                            Text("Sending Offer..."),
                           ],
                         ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            },
-                            child: Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return Dialog(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                      ),
+                    );
+                  },
+                );
+                if (widget.exchangeWith != null) {
+                  api _api = api();
+                  String response = await _api.addRequest(
+                      widget.requestedPost.id!,
+                      widget.exchangeWith!.id!,
+                      messageController.text);
+                  Navigator.pop(context);
+                  if (response == '200') {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          icon: Icon(Icons.check_circle,
+                              color: Colors.green, size: 48),
+                          title: Column(
                             children: [
-                              Text("Failed to send offer!"),
+                              Text("Offer Sent!"),
+                              Text(
+                                "Shabash mery sher!",
+                                style: TextStyle(fontSize: 12),
+                              ),
                             ],
                           ),
-                        ),
-                      );
-                    },
-                  );
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return Dialog(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("Failed to send offer!"),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
                 }
               }
             })

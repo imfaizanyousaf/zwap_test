@@ -471,13 +471,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                                 currentUser: widget.post.user!,
                                               )),
                                     );
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditProfileScreen()),
+                                    );
                                   }
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            EditProfileScreen()),
-                                  );
                                 },
                                 child: (currentUser != null &&
                                         widget.post.userId != currentUser!.id)
