@@ -12,6 +12,8 @@ import 'package:zwap_test/view/exchange_screen.dart';
 import 'package:zwap_test/view/new_post.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:zwap_test/view/profile.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class ProductDetailsScreen extends StatefulWidget {
   final Post post;
@@ -25,6 +27,7 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   bool isFav = false;
   User? currentUser;
+
   void _showLoadingDialog() {
     showDialog(
       context: context,
@@ -89,6 +92,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     super.dispose();
   }
 
+  void _openPhotoViewGallery(int initialIndex, List<dynamic> images) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PhotoViewGalleryScreen(
+          images: (images),
+          initialIndex: initialIndex,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,19 +121,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: widget.post.imageUrls != null
                   ? PageView.builder(
-                      itemCount: (widget.post.imageUrls == null ||
-                              widget.post.imageUrls!.isEmpty ||
-                              widget.post.imageUrls == [])
-                          ? 1
-                          : widget.post.imageUrls!.length,
+                      itemCount: widget.post.imageUrls!.length,
                       itemBuilder: (context, index) {
-                        return Image.network(
-                          (widget.post.imageUrls == null ||
-                                  widget.post.imageUrls!.isEmpty ||
-                                  widget.post.imageUrls == [])
-                              ? "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                              : widget.post.imageUrls![index],
-                          fit: BoxFit.cover,
+                        return InkWell(
+                          onTap: () {
+                            _openPhotoViewGallery(
+                                index, (widget.post.imageUrls!));
+                          },
+                          child: Image.network(
+                            widget.post.imageUrls![index],
+                            fit: BoxFit.cover,
+                          ),
                         );
                       },
                     )
@@ -137,11 +150,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    (widget.post.imageUrls == null ||
-                            widget.post.imageUrls!.isEmpty ||
-                            widget.post.imageUrls == [])
-                        ? 1
-                        : widget.post.imageUrls!.length,
+                    widget.post.imageUrls!.length,
                     (index) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Container(
@@ -596,6 +605,34 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class PhotoViewGalleryScreen extends StatelessWidget {
+  final List<dynamic> images;
+  final int initialIndex;
+
+  PhotoViewGalleryScreen({required this.images, this.initialIndex = 0});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: PhotoViewGallery.builder(
+        itemCount: images.length,
+        builder: (context, index) {
+          return PhotoViewGalleryPageOptions(
+            imageProvider: NetworkImage(images[index]),
+            minScale: PhotoViewComputedScale.contained,
+            maxScale: PhotoViewComputedScale.covered * 2,
+          );
+        },
+        scrollPhysics: BouncingScrollPhysics(),
+        backgroundDecoration: BoxDecoration(
+          color: Colors.black,
+        ),
+        pageController: PageController(initialPage: initialIndex),
       ),
     );
   }
