@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
@@ -200,7 +201,16 @@ class _PostCardState extends State<PostCard> {
                                                         244, 67, 54, 1),
                                                   ),
                                             title: Text('Delete'),
-                                            onTap: () => {},
+                                            onTap: () async {
+                                              api user = api();
+                                              String response = await user
+                                                  .deletePost(widget.post.id!);
+                                              Navigator.pop(context);
+                                              if (response == '200') {
+                                                showToast(
+                                                    message: "Post Deleted");
+                                              }
+                                            },
                                           )
                                         : Container(),
                                   ],

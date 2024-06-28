@@ -159,7 +159,9 @@ class _CardListState extends State<CardList> {
         : Container(
             color: AppColor.background,
             child: FutureBuilder<List<Post>>(
-              future: userViewModel.getPostsForYou(widget.currentUser.id),
+              future: widget.tabTitle == "For You"
+                  ? userViewModel.getPostsForYou(widget.currentUser.id)
+                  : userViewModel.getFollowingFeed(widget.currentUser.id),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -171,7 +173,15 @@ class _CardListState extends State<CardList> {
                           "Error: ${snapshot.error}")); // Display an error message if data fetching fails
                 } else if (snapshot.data!.isEmpty) {
                   bool hasInterests;
+                  bool hasFollowing;
 
+                  Future<List<User>> followingUsers =
+                      userViewModel.getFollowing(widget.currentUser.id);
+                  if (followingUsers != null || followingUsers != []) {
+                    hasFollowing = true;
+                  } else {
+                    hasFollowing = false;
+                  }
                   Future<List<Categories>> interests =
                       userViewModel.getUserIntersts(widget.currentUser.id);
                   if (interests != null || interests != []) {
@@ -179,41 +189,49 @@ class _CardListState extends State<CardList> {
                   } else {
                     hasInterests = false;
                   }
-                  if (hasInterests) {
+                  if ((widget.tabTitle == "For You" && !hasInterests) ||
+                      (widget.tabTitle == "Following" && !hasFollowing)) {
                     return Center(
                         child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(
-                          'assets/empty-states/interests.svg',
+                          widget.tabTitle == "For You"
+                              ? 'assets/empty-states/interests.svg'
+                              : 'assets/empty-states/posts.svg',
                           width: 250,
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 8.0, horizontal: 16),
                           child: Text(
-                            'You have not set up any interests yet. Add some to see posts',
+                            widget.tabTitle == "For You"
+                                ? 'You have not set up any interests yet. Add some to see posts'
+                                : "You have not followed anyone",
                             textAlign: TextAlign.center,
                             style: TextStyle(),
                           ),
                         ),
-                        Container(
-                          width: 200,
-                          child: PrimaryLarge(
-                            color: AppColor.lightBlue,
-                            text: 'Add Interests',
-                            onPressed: () {
-                              // navigate to edit_new_post.dart
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => AddInterestsScreen(
-                                      previousScreen: 'ProfileScreen',
-                                    ),
-                                  ));
-                            },
-                          ),
-                        ),
+                        widget.tabTitle == "For You"
+                            ? Container(
+                                width: 200,
+                                child: PrimaryLarge(
+                                  color: AppColor.lightBlue,
+                                  text: 'Add Interests',
+                                  onPressed: () {
+                                    // navigate to edit_new_post.dart
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              AddInterestsScreen(
+                                            previousScreen: 'ProfileScreen',
+                                          ),
+                                        ));
+                                  },
+                                ),
+                              )
+                            : Container(),
                       ],
                     ));
                   }

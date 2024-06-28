@@ -91,77 +91,80 @@ class _ChatRoomState extends State<ChatRoom> {
             child: ListView.builder(
               itemCount: _messages.length,
               itemBuilder: (context, index) {
-                return Container(
-                  padding: EdgeInsets.all(16.0),
-                  // margin: EdgeInsets.only(top: 10.0, bottom: 10.0, left: isCurrentUser ? 60.0 : 10.0, right: isCurrentUser ? 10.0 : 60.0),
+                return widget.sender.id == _messages[index].senderId
+                    ? Container(
+                        padding: EdgeInsets.all(16.0),
+                        // margin: EdgeInsets.only(top: 10.0, bottom: 10.0, left: isCurrentUser ? 60.0 : 10.0, right: isCurrentUser ? 10.0 : 60.0),
 
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Column(
-                        crossAxisAlignment:
-                            _messages[index].senderId == widget.sender.id
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
-                        children: [
-                          _messages[index].senderId != widget.sender.id
-                              ? Text(
-                                  '${widget.sender.firstName + ' ' + widget.sender.lastName}',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
-                                )
-                              : Container(),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: AppColor.primaryDark,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10.0),
-                                  topRight: Radius.circular(10.0),
-                                  bottomLeft: Radius.circular(10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Column(
+                              crossAxisAlignment:
+                                  _messages[index].senderId == widget.sender.id
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                              children: [
+                                _messages[index].senderId != widget.sender.id
+                                    ? Text(
+                                        '${widget.sender.firstName + ' ' + widget.sender.lastName}',
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12),
+                                      )
+                                    : Container(),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: AppColor.primaryDark,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10.0),
+                                        topRight: Radius.circular(10.0),
+                                        bottomLeft: Radius.circular(10.0),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(_messages[index].body,
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(_messages[index].body,
-                                    style: TextStyle(color: Colors.white)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    "${_messages[index].sentAt.hour.toString().padLeft(2, '0')}:${_messages[index].sentAt.minute.toString().padLeft(2, '0')}",
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: CircleAvatar(
+                                radius: 16,
+                                backgroundImage: widget.sender.logo != null
+                                    ? NetworkImage(
+                                        widget.sender.logo ??
+                                            'https://avatar.iran.liara.run/username?username=${widget.sender.firstName}+${widget.sender.lastName}',
+                                      )
+                                    : NetworkImage(
+                                        'https://avatar.iran.liara.run/username?username=${widget.sender.firstName}+${widget.sender.lastName}',
+                                      ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Text(
-                              "${_messages[index].sentAt.hour.toString().padLeft(2, '0')}:${_messages[index].sentAt.minute.toString().padLeft(2, '0')}",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(right: 8.0),
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundImage: widget.sender.logo != null
-                              ? NetworkImage(
-                                  widget.sender.logo ??
-                                      'https://avatar.iran.liara.run/username?username=${widget.sender.firstName}+${widget.sender.lastName}',
-                                )
-                              : NetworkImage(
-                                  'https://avatar.iran.liara.run/username?username=${widget.sender.firstName}+${widget.sender.lastName}',
-                                ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                );
+                      )
+                    : Container();
               },
             ),
           ),

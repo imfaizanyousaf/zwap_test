@@ -245,7 +245,6 @@ class _AddInterestsScreenState extends State<AddInterestsScreen> {
                                         if (widget.previousScreen ==
                                             'ProfileScreen') {
                                           Navigator.pop(context);
-                                          Navigator.pop(context);
                                         } else {
                                           Navigator.pushReplacement(
                                             context,

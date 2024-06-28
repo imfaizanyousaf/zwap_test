@@ -318,6 +318,22 @@ class api {
     }
   }
 
+  Future<List<Post>> getFollowingFeed(int userId) async {
+    try {
+      final response = await _dio.get(apiUrl + "/posts/following/$userId");
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = response.data;
+        List<dynamic> data = responseData['data'] as List;
+        List<Post> posts = data.map((json) => Post.fromJson(json)).toList();
+        return posts;
+      } else {
+        throw Exception("Failed to load posts ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load postss: $e");
+    }
+  }
+
   Future<List<Post>> searchPosts(String query, List<String> categories,
       List<String> locations, List<String> conditions) async {
     try {
@@ -376,66 +392,6 @@ class api {
     }
   }
 
-  // Future<String> addPost(Post post) async {
-  //   try {
-  //     // Create FormData
-  //     // FormData formData = FormData.fromMap({
-  //     //   "title": post.title,
-  //     //   "description": post.description,
-  //     //   "user_id": post.userId,
-  //     //   "condition_id": post.conditionId,
-  //     //   "categories": post.categories != null
-  //     //       ? post.categories!.map((e) => e.id).toList()
-  //     //       : [],
-  //     //   "locations": post.locations != null
-  //     //       ? post.locations!.map((e) => e.id).toList()
-  //     //       : [],
-  //     //   "published": post.published,
-  //     //   "images": [
-  //     //     if (post.images != null)
-  //     //       {
-  //     //         for (String imagePath in post.images!)
-  //     //           await MultipartFile.fromFile(imagePath,
-  //     //               filename: imagePath.split('/').last),
-  //     //       }
-  //     //   ]
-  //     // });
-
-  //     // Send POST request
-  //     final response = await _dio.post(
-  //       "${apiUrl}/posts",
-  //       data: {
-  //         "title": post.title,
-  //         "description": post.description,
-  //         "user_id": post.userId,
-  //         "condition_id": post.conditionId,
-  //         "categories": post.categories != null
-  //             ? post.categories!.map((e) => e.id).toList()
-  //             : [],
-  //         "locations": post.locations != null
-  //             ? post.locations!.map((e) => e.id).toList()
-  //             : [],
-  //         "published": post.published,
-  //       },
-  //     );
-
-  //     // Handle response
-  //     if (response.statusCode! >= 200 && response.statusCode! < 300) {
-  //       return response.statusCode.toString();
-  //     } else {
-  //       return Future.error(response.statusCode.toString());
-  //     }
-  //   } on DioException catch (e) {
-  //     print('----------------REQUEST----------------');
-  //     var data = e.requestOptions.data;
-  //     print(data);
-  //     print('----------------RESPONSE----------------');
-  //     print(e.response?.data);
-  //     return e.response?.statusCode?.toString() ?? 'Unknown error';
-  //   }
-  // }
-
-  //create an add Post function that takes in a post object and sends a post request to the api
   Future<String> addPost(Post post) async {
     try {
       List<MultipartFile> imageFiles = [];
@@ -478,12 +434,29 @@ class api {
         return Future.error(response.statusCode.toString());
       }
     } on DioException catch (e) {
-      print('----------------REQUEST----------------');
       FormData data = e.requestOptions.data;
-      print(data.fields);
-      print('----------------RESPONSE----------------');
-      print(e.response?.data);
+
       return e.response?.statusCode?.toString() ?? 'Unknown error';
+    }
+  }
+
+  Future<String> deletePost(int postId) async {
+    try {
+      final response = await _dio.delete(
+        "${apiUrl}/posts/${postId}",
+        options: Options(
+          validateStatus: (status) {
+            return status! < 500; // Accept all status codes below 500
+          },
+        ),
+      );
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return response.statusCode.toString();
+      } else {
+        return response.statusCode.toString();
+      }
+    } on DioException catch (e) {
+      return e.response!.statusCode.toString();
     }
   }
 

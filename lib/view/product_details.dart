@@ -23,11 +23,6 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  final List<String> images = [
-    'https://picsum.photos/986/600',
-    'https://picsum.photos/986/600',
-    'https://picsum.photos/986/600',
-  ];
   bool isFav = false;
   User? currentUser;
   void _showLoadingDialog() {

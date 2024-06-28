@@ -32,7 +32,6 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    print("USER AVAtAR: ${json['id']} : ${json['logo']}");
     return User(
         id: json['id'],
         firstName: json['first_name'],
