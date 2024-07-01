@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zwap_test/model/categories.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/utils/category_icon.dart';
 
 class CategoriesPage extends StatefulWidget {
   final List<String> initialSelectedItems;
@@ -110,6 +111,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       if (category.parentId == null &&
                           _hasChildren(category, snapshot.data!))
                         ExpansionTile(
+                          leading: CategoryIcon.getIcon(category.name!),
                           title: Text(category.name!),
                           children: [
                             for (var childCategory in snapshot.data!)
@@ -145,8 +147,16 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         )
                       else
                         CheckboxListTile(
-                          controlAffinity: ListTileControlAffinity.leading,
-                          title: Text(category.name!),
+                          controlAffinity: ListTileControlAffinity.trailing,
+                          title: Row(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 18.0),
+                                child: CategoryIcon.getIcon(category.name!),
+                              ),
+                              Text(category.name!),
+                            ],
+                          ),
                           value: selectedItems.contains(
                             widget.returnCategories ? category : category.name,
                           ),

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/request.dart';
+import 'package:zwap_test/model/reviews.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
@@ -15,6 +16,7 @@ import 'package:zwap_test/view/add_interests.dart';
 import 'package:zwap_test/view/add_locations.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/post_card.dart';
+import 'package:zwap_test/view/components/review_card.dart';
 import 'package:zwap_test/view/edit_new_post.dart';
 import 'package:zwap_test/view/edit_profile.dart';
 import 'package:zwap_test/view/filters/categories.dart';
@@ -36,6 +38,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   List<Post> favPosts = [];
+  List<Reviews> reviews = [];
   bool isFollowing = false;
   List<Post> posts = [];
 
@@ -80,12 +83,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         tempIsFollowing = false;
       }
 
+      List<Reviews> tempReviews = await _api.getFeedbackByUser(user.id);
+
       if (mounted) {
         setState(() {
           widget.currentUser = user;
           posts = userPosts;
           widget.loggedInUser = tempUser;
           favPosts = tempFavPosts;
+          reviews = tempReviews;
 
           widget.follwedBy = tempFollowedBy;
           widget.following = tempFollowing;
@@ -607,6 +613,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               )
                             : Container()
                         : Container(),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            selectedIconIndex = 3;
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: selectedIconIndex == 3
+                                    ? AppColor.primary // Selected tab color
+                                    : Colors.grey[200]!,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          // Make the entire Container tappable
+                          child: Center(
+                            child: Text(
+                              'Reviews',
+                              style: GoogleFonts.manrope(
+                                textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.6,
+                                  letterSpacing: 0.15,
+                                  color: selectedIconIndex == 3
+                                      ? AppColor
+                                          .primary // Selected tab text color
+                                      : Color.fromARGB(255, 71, 71, 71),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -723,14 +769,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         currentUser: widget.currentUser,
                       );
                     }
-                  } else {
+                  } else if (selectedIconIndex == 3) {
                     // Handle other icons if needed
-                    return Container();
+                    return ReviewCard(review: reviews[index]);
                   }
                 },
                 childCount: selectedIconIndex == 0
                     ? (widget.currentUser.posts?.length ?? 1)
-                    : (favPosts.length ?? 1),
+                    : (selectedIconIndex == 3
+                        ? reviews.length
+                        : (favPosts.length)),
               ),
             ),
           ],

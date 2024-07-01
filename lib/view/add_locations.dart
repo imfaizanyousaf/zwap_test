@@ -38,9 +38,11 @@ class _AddLocationsScreenState extends State<AddLocationsScreen> {
   void setInitialLocations() async {
     User currentUser = await user.getUser(null);
     List<Locations> locations = await user.getUserLocations(currentUser.id);
-    setState(() {
-      locationsSelected = locations.map((e) => e.id!).toList();
-    });
+    if (mounted) {
+      setState(() {
+        locationsSelected = locations.map((e) => e.id!).toList();
+      });
+    }
   }
 
   void checkConnection() async {
@@ -244,7 +246,6 @@ class _AddLocationsScreenState extends State<AddLocationsScreen> {
                                       if (response == 200) {
                                         if (widget.previousScreen ==
                                             'ProfileScreen') {
-                                          Navigator.pop(context);
                                           Navigator.pop(context);
                                         } else {
                                           Navigator.pushReplacement(

@@ -87,7 +87,7 @@ class Post {
       'user_id': userId,
       'condition_id': conditionId,
       'image_urls': imageUrls,
-      'published': published ?? true,
+      'published': published,
       'published_at': publishedAt?.toIso8601String(),
       'exchanged_at': exchangedAt?.toIso8601String(),
       'user': user?.toJson(),

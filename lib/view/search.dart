@@ -7,6 +7,7 @@ import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/utils/category_icon.dart';
 import 'package:zwap_test/utils/connection.dart';
 import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/view/filters/sort_filter.dart';
@@ -225,15 +226,32 @@ class _SearchScreenState extends State<SearchScreen> {
                                               padding:
                                                   const EdgeInsets.all(4.0),
                                               child: FilterChip(
-                                                label: Text(
-                                                  category.name!,
-                                                  textAlign: TextAlign.center,
-                                                  style: GoogleFonts.manrope(
-                                                    fontSize: 14,
-                                                    color: isSelected
-                                                        ? Colors.white
-                                                        : Color(0xff5c5c5c),
-                                                  ),
+                                                label: Row(
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              right: 8.0),
+                                                      child: CategoryIcon.getIcon(
+                                                          iconColor: isSelected
+                                                              ? Colors.white
+                                                              : Colors.black54,
+                                                          iconSize: 16.0,
+                                                          category.name!),
+                                                    ),
+                                                    Text(
+                                                      category.name!,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style:
+                                                          GoogleFonts.manrope(
+                                                        fontSize: 14,
+                                                        color: isSelected
+                                                            ? Colors.white
+                                                            : Color(0xff5c5c5c),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                                 checkmarkColor: Colors.white,
                                                 selected: isSelected,

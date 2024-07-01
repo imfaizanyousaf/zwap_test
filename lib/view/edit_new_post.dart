@@ -359,16 +359,27 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                 if (response == '200') {
                   showDialog(
                     context: context,
+                    barrierDismissible: false,
                     builder: (BuildContext context) {
                       return AlertDialog(
-                        title: const Text('Post Created Successfully'),
-                        actions: <Widget>[
+                        icon: Icon(Icons.check_circle,
+                            color: Colors.green, size: 48),
+                        title: Column(
+                          children: [
+                            Text("Post Created!"),
+                            Text(
+                              "Shabash mery sher!",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                        actions: [
                           TextButton(
                             onPressed: () {
                               Navigator.of(context).pop(true);
-                              Navigator.of(context).pop();
+                              Navigator.pop(context);
                             },
-                            child: const Text('Done'),
+                            child: Text('OK'),
                           ),
                         ],
                       );

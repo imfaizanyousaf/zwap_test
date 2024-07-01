@@ -47,6 +47,7 @@ dependencies:
   connectivity_plus: ^6.0.3
   pusher_channels_flutter: ^2.2.1
   photo_view: ^0.15.0
+  google_maps_flutter: ^2.6.1
   
 dev_dependencies:
   flutter_test:

@@ -8,6 +8,7 @@ import 'package:zwap_test/model/conditions.dart';
 import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/request.dart';
+import 'package:zwap_test/model/reviews.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/utils/connection.dart';
 import 'package:zwap_test/utils/dio_interceptor.dart';
@@ -392,6 +393,21 @@ class api {
     }
   }
 
+  Future<String> exchanged(int postId) async {
+    try {
+      final response = await _dio.post(
+        "${apiUrl}/posts/exchanged/$postId",
+      );
+      if (response.statusCode == 200) {
+        return response.statusCode.toString();
+      } else {
+        throw Exception("Failed to exchange ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to exchange: $e");
+    }
+  }
+
   Future<String> addPost(Post post) async {
     try {
       List<MultipartFile> imageFiles = [];
@@ -436,6 +452,8 @@ class api {
     } on DioException catch (e) {
       FormData data = e.requestOptions.data;
 
+      print("ERROR POSTING: ${jsonEncode(e.response.toString())}");
+
       return e.response?.statusCode?.toString() ?? 'Unknown error';
     }
   }
@@ -457,6 +475,44 @@ class api {
       }
     } on DioException catch (e) {
       return e.response!.statusCode.toString();
+    }
+  }
+
+  Future<String> addFeedback(String rating, int feedbackOn, int feedbackBy,
+      int feedbackTo, String comment) async {
+    try {
+      final response = await _dio.post(
+        "${apiUrl}/feedbacks",
+        data: {
+          "rating": rating,
+          "comment": comment,
+          "feedback_by": feedbackBy,
+          "feedback_to": feedbackTo,
+          "feedback_on": feedbackOn
+        },
+      );
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return response.statusCode.toString();
+      } else {
+        return response.statusCode.toString();
+      }
+    } on DioException catch (e) {
+      print('FEEDBACK RESPONSE: ${jsonDecode(e.response.toString())}');
+      return e.response!.statusCode.toString();
+    }
+  }
+
+  Future<List<Reviews>> getFeedbackByUser(int userId) async {
+    try {
+      final response = await _dio.get(
+        "${apiUrl}/feedbacks/user/${userId}",
+      );
+      List<dynamic> responseData = response.data;
+      List<Reviews> reviews =
+          responseData.map((json) => Reviews.fromJson(json)).toList();
+      return reviews;
+    } on DioException catch (e) {
+      throw e.response!.statusCode.toString();
     }
   }
 
@@ -648,10 +704,10 @@ class api {
       if (response.statusCode == 200) {
         return response.statusCode.toString();
       } else {
-        throw Exception("Failed to load user posts ${response.statusCode}");
+        throw Exception("Failed to update request ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load user posts: $e");
+      throw Exception("Failed to update request: $e");
     }
   }
 
@@ -664,10 +720,25 @@ class api {
       if (response.statusCode == 200) {
         return response.statusCode.toString();
       } else {
-        throw Exception("Failed to load user posts ${response.statusCode}");
+        throw Exception("Failed to update request ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load user posts: $e");
+      throw Exception("Failed to update request: $e");
+    }
+  }
+
+  Future<String> reviewPost(int requestId) async {
+    try {
+      final response = await _dio.get(
+        "${apiUrl}/requests/$requestId/review",
+      );
+      if (response.statusCode == 200) {
+        return response.statusCode.toString();
+      } else {
+        throw Exception("Failed to update request ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to update request: $e");
     }
   }
 
@@ -679,10 +750,10 @@ class api {
       if (response.statusCode == 200) {
         return response.statusCode.toString();
       } else {
-        throw Exception("Failed to load user posts ${response.statusCode}");
+        throw Exception("Failed to update request ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load user posts: $e");
+      throw Exception("Failed to update request: $e");
     }
   }
 
@@ -694,10 +765,10 @@ class api {
       if (response.statusCode == 200) {
         return response.statusCode.toString();
       } else {
-        throw Exception("Failed to load user posts ${response.statusCode}");
+        throw Exception("Failed to update request ${response.statusCode}");
       }
     } catch (e) {
-      throw Exception("Failed to load user posts: $e");
+      throw Exception("Failed to update request: $e");
     }
   }
 }

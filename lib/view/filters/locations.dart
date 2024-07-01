@@ -4,6 +4,7 @@ import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
+import 'package:zwap_test/view/location_picker.dart';
 
 class LocationsPage extends StatefulWidget {
   final List<String> initialSelectedItems; // New parameter
@@ -107,6 +108,26 @@ class _LocationsPageState extends State<LocationsPage> {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(Icons.map),
+                  title: Text(
+                    "Select on Map",
+                  ),
+                  trailing: Icon(Icons.arrow_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LocationPickerScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: Text(
                   "My Meeting Venues",
                   textAlign: TextAlign.left,
@@ -121,6 +142,16 @@ class _LocationsPageState extends State<LocationsPage> {
                     return Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Center(child: Text("Error: ${snapshot.error}"));
+                  } else if (snapshot.data == [] ||
+                      snapshot.data == null ||
+                      snapshot.data!.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Center(
+                          child: Text(
+                              textAlign: TextAlign.center,
+                              "No Meeting Venues Set!")),
+                    );
                   } else {
                     return SingleChildScrollView(
                       child: Column(

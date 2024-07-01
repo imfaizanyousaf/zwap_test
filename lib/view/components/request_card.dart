@@ -15,6 +15,7 @@ import 'package:zwap_test/view/components/health_badge.dart';
 import 'package:zwap_test/view/home.dart';
 import 'package:zwap_test/view/product_details.dart';
 import 'package:zwap_test/view/requests.dart';
+import 'package:zwap_test/view/review.dart';
 
 class RequestCard extends StatefulWidget {
   final Request requests;
@@ -398,28 +399,181 @@ class _RequestCardState extends State<RequestCard> {
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      widget.requests.status == 'accepted'
+                      widget.requests.status == 'accepted' ||
+                              widget.requests.status == 'reviewed'
                           ? Expanded(
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  //push to ChatRoom screen
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatRoom(
-                                        sender: widget.currentUser!,
-                                        receiver: widget.requests.requestedBy,
-                                      ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  (widget.requests.status != 'reviewed')
+                                      ? Expanded(
+                                          child: ElevatedButton(
+                                            onPressed: (widget
+                                                            .requests
+                                                            .exchangedPost
+                                                            .exchangedAt ==
+                                                        null ||
+                                                    (widget
+                                                                .requests
+                                                                .exchangedPost
+                                                                .exchangedAt !=
+                                                            null &&
+                                                        (widget.currentUser !=
+                                                                null
+                                                            ? widget.currentUser!
+                                                                    .id ==
+                                                                widget
+                                                                    .requests
+                                                                    .requestedPost
+                                                                    .userId
+                                                            : false) &&
+                                                        widget
+                                                                .requests
+                                                                .requestedPost
+                                                                .exchangedAt !=
+                                                            null))
+                                                ? () async {
+                                                    //push to ChatRoom screen
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ReviewScreen(
+                                                          request:
+                                                              widget.requests,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                : () => {},
+                                            child: Text((widget
+                                                            .requests
+                                                            .exchangedPost
+                                                            .exchangedAt ==
+                                                        null ||
+                                                    (widget
+                                                                .requests
+                                                                .exchangedPost
+                                                                .exchangedAt !=
+                                                            null &&
+                                                        (widget.currentUser !=
+                                                                null
+                                                            ? widget.currentUser!
+                                                                    .id ==
+                                                                widget
+                                                                    .requests
+                                                                    .requestedPost
+                                                                    .userId
+                                                            : false) &&
+                                                        widget
+                                                                .requests
+                                                                .requestedPost
+                                                                .exchangedAt !=
+                                                            null))
+                                                ? 'Leave a Review'
+                                                : "Reviewed"),
+                                            style: ButtonStyle(
+                                                side: MaterialStateProperty.all(
+                                                  BorderSide(
+                                                    color: (widget.requests.exchangedPost
+                                                                    .exchangedAt ==
+                                                                null ||
+                                                            (widget
+                                                                        .requests
+                                                                        .exchangedPost
+                                                                        .exchangedAt !=
+                                                                    null &&
+                                                                (widget.currentUser !=
+                                                                        null
+                                                                    ? widget.currentUser!
+                                                                            .id ==
+                                                                        widget
+                                                                            .requests
+                                                                            .requestedPost
+                                                                            .userId
+                                                                    : false) &&
+                                                                widget
+                                                                        .requests
+                                                                        .requestedPost
+                                                                        .exchangedAt !=
+                                                                    null))
+                                                        ? AppColor.primary
+                                                        : Colors.grey,
+                                                  ),
+                                                ),
+                                                foregroundColor: (widget
+                                                                .requests
+                                                                .exchangedPost
+                                                                .exchangedAt ==
+                                                            null ||
+                                                        (widget
+                                                                    .requests
+                                                                    .exchangedPost
+                                                                    .exchangedAt !=
+                                                                null &&
+                                                            (widget.currentUser != null
+                                                                ? widget.currentUser!.id ==
+                                                                    widget
+                                                                        .requests
+                                                                        .requestedPost
+                                                                        .userId
+                                                                : false) &&
+                                                            widget
+                                                                    .requests
+                                                                    .requestedPost
+                                                                    .exchangedAt !=
+                                                                null))
+                                                    ? MaterialStateProperty.all(
+                                                        AppColor.primary)
+                                                    : MaterialStateProperty.all(
+                                                        Colors.grey)),
+                                          ),
+                                        )
+                                      : Container(),
+                                  widget.requests.status != 'reviewed'
+                                      ? SizedBox(width: 8)
+                                      : Container(),
+                                  Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (widget.requests.status ==
+                                            'reviewed') {
+                                          return;
+                                        }
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatRoom(
+                                              sender: widget.currentUser!,
+                                              receiver:
+                                                  widget.requests.requestedBy,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child:
+                                          widget.requests.status == 'reviewed'
+                                              ? Text('Reviewed')
+                                              : Text('Chat'),
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              widget.requests.status ==
+                                                      'reviewed'
+                                                  ? MaterialStateProperty.all(
+                                                      Colors.grey)
+                                                  : MaterialStateProperty.all(
+                                                      AppColor.primary),
+                                          foregroundColor: widget
+                                                      .requests.status ==
+                                                  'reviewed'
+                                              ? MaterialStateProperty.all(
+                                                  Colors.black26)
+                                              : MaterialStateProperty.all(
+                                                  Colors.white)),
                                     ),
-                                  );
-                                },
-                                child: Text('Chat'),
-                                style: ButtonStyle(
-                                    side: MaterialStateProperty.all(
-                                      BorderSide(color: AppColor.primary),
-                                    ),
-                                    foregroundColor: MaterialStateProperty.all(
-                                        AppColor.primary)),
+                                  ),
+                                ],
                               ),
                             )
                           : (widget.currentUser != null)
