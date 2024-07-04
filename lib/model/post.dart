@@ -19,6 +19,8 @@ class Post {
   User? user;
   Conditions? condition;
   List<Locations>? locations;
+  String? lat;
+  String? lng;
   List<Categories>? categories;
 
   Post({
@@ -38,6 +40,8 @@ class Post {
     this.condition,
     this.locations,
     this.categories,
+    this.lat,
+    this.lng,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -76,6 +80,8 @@ class Post {
           ? List<Categories>.from(json['categories']
               .map((category) => Categories.fromJson(category)))
           : null,
+      lat: json['lat'] ?? null,
+      lng: json['lng'] ?? null,
       published: json['published'] ?? null,
     );
   }
@@ -94,6 +100,8 @@ class Post {
       'condition': condition?.toJson(),
       'locations': locations?.map((e) => e.id).toList(),
       'categories': categories?.map((e) => e.id).toList(),
+      'lat': lat,
+      'lng': lng,
     };
   }
 }

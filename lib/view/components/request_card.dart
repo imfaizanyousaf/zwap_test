@@ -624,8 +624,30 @@ class _RequestCardState extends State<RequestCard> {
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 8.0),
                                           child: OutlinedButton(
-                                            onPressed: () {
-                                              // Close button logic
+                                            onPressed: () async {
+                                              if (await isConnected()) {
+                                                api _api = api();
+                                                String response =
+                                                    await _api.rejectRequest(
+                                                        widget.requests.id);
+                                                if (response == '200') {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'Request Rejected')));
+                                                  widget.onRequestUpdated();
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                          content: Text(
+                                                              'Failed to accept $response')));
+                                                }
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                        content: Text(
+                                                            'No Internet')));
+                                              }
                                             },
                                             child: Icon(Icons.close),
                                             style: ButtonStyle(

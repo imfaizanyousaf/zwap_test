@@ -206,6 +206,25 @@ class api {
     }
   }
 
+  Future<List<Locations>> searchLocation(String query) async {
+    try {
+      final response = await _dio.get("${apiUrl}/locations/search", data: {
+        'query': query,
+      });
+
+      if (response.statusCode == 200) {
+        List<dynamic> responseData = response.data;
+        List<Locations> locations =
+            responseData.map((json) => Locations.fromJson(json)).toList();
+        return locations;
+      } else {
+        throw Exception("Failed to load user interests ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Failed to load user interests: $e");
+    }
+  }
+
   Future<int> assignLocations(int id, List<int> locations) async {
     try {
       final response = await _dio.post(
@@ -435,6 +454,8 @@ class api {
             : [],
         "published": post.published == true ? 1 : 0,
         "images": imageFiles,
+        "lat": post.lat,
+        "lng": post.lng,
       }, ListFormat.multiCompatible);
 
       // Send POST request

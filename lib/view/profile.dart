@@ -14,6 +14,7 @@ import 'package:zwap_test/utils/number_formater.dart';
 import 'package:zwap_test/utils/token_manager.dart';
 import 'package:zwap_test/view/add_interests.dart';
 import 'package:zwap_test/view/add_locations.dart';
+import 'package:zwap_test/view/add_meeting_venues.dart';
 import 'package:zwap_test/view/components/buttons/primaryLarge.dart';
 import 'package:zwap_test/view/components/post_card.dart';
 import 'package:zwap_test/view/components/review_card.dart';
@@ -197,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      AddLocationsScreen(
+                                                      AddMeetingVenues(
                                                         previousScreen:
                                                             'ProfileScreen',
                                                       )))
@@ -213,8 +214,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           style: TextStyle(color: Colors.red),
                                         ),
                                         onTap: () => {
-                                          //Logout by calling the logout function in api.dart
-                                          _logout()
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                  content: Container(
+                                                height: 100,
+                                                width: 100,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    CircularProgressIndicator(
+                                                      color: AppColor.primary,
+                                                    ),
+                                                    SizedBox(
+                                                      height: 16,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ));
+                                            },
+                                          ),
+                                          _logout(),
+                                          Navigator.pop(context)
                                         },
                                       ),
                                     ],

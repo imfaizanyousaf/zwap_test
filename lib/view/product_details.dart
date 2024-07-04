@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/post.dart';
 import 'package:zwap_test/model/user.dart';
@@ -27,7 +28,9 @@ class ProductDetailsScreen extends StatefulWidget {
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   bool isFav = false;
   User? currentUser;
+  LatLng? _selectedLocation;
 
+  bool addingFav = false;
   void _showLoadingDialog() {
     showDialog(
       context: context,
@@ -55,6 +58,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       _showLoadingDialog();
       api _api = api();
       User temp = await _api.getUser(null);
+      LatLng tempLatLng = LatLng(
+        double.tryParse(widget.post.locations![0].lat)!,
+        double.tryParse(widget.post.locations![0].lng)!,
+      );
       List<Post> favPosts = await _api.getFavPosts(
         temp.id,
       );
@@ -68,7 +75,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         }
       }
       if (mounted) {
+        print("POST LAT LANG: " + tempLatLng.toString());
         setState(() {
+          _selectedLocation = tempLatLng;
           currentUser = temp;
         });
       }
@@ -78,6 +87,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       Navigator.pop(context);
     }
   }
+
+  GoogleMapController? _controller;
 
   @override
   void initState() {
@@ -102,6 +113,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
       ),
     );
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _controller = controller;
+    if (_controller != null) {
+      _controller!.showMarkerInfoWindow(MarkerId('post-location'));
+    }
   }
 
   @override
@@ -198,6 +216,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               Spacer(),
                               TextButton(
                                 onPressed: () async {
+                                  setState(() {
+                                    addingFav = true;
+                                  });
                                   api user = api();
                                   List<Post> oldFavPosts =
                                       await user.getFavPosts(currentUser!.id);
@@ -215,16 +236,45 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       isFav = !isFav;
                                     });
                                   }
+                                  setState(() {
+                                    addingFav = false;
+                                  });
                                 },
                                 child: isFav
-                                    ? Icon(
-                                        Icons.favorite,
-                                        color: Colors.red,
-                                      )
-                                    : Icon(
-                                        Icons.favorite_border,
-                                        color: AppColor.primary,
-                                      ),
+                                    ? addingFav
+                                        ? Center(
+                                            child: SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                              Color>(
+                                                          AppColor.primary)),
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.favorite,
+                                            color: Colors.red,
+                                          )
+                                    : addingFav
+                                        ? Center(
+                                            child: SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                              Color>(
+                                                          AppColor.primary)),
+                                            ),
+                                          )
+                                        : Icon(
+                                            Icons.favorite_border,
+                                            color: AppColor.primary,
+                                          ),
                               )
                             ],
                           ),
@@ -320,7 +370,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   SizedBox(height: 8),
                                   widget.post.categories! != [] &&
                                           widget.post.categories!.isNotEmpty
-                                      ? Row(
+                                      ? Wrap(
                                           children: widget.post.categories!
                                               .map((category) {
                                             return Padding(
@@ -381,12 +431,49 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                   SizedBox(height: 8),
                                   widget.post.locations! != [] &&
                                           widget.post.locations!.isNotEmpty
-                                      ? Text(
-                                          widget.post.locations!
-                                              .map((e) => e.name)
-                                              .join(', '),
-                                          style: TextStyle(
-                                            fontSize: 16,
+                                      ? Container(
+                                          width: double.infinity,
+                                          height: 200,
+                                          child: GoogleMap(
+                                            mapToolbarEnabled: true,
+                                            onMapCreated: _onMapCreated,
+                                            myLocationEnabled: true,
+                                            myLocationButtonEnabled: false,
+                                            zoomControlsEnabled: true,
+                                            initialCameraPosition:
+                                                CameraPosition(
+                                              target: LatLng(
+                                                  double.parse(widget
+                                                      .post.locations![0].lat)!,
+                                                  double.parse(widget.post
+                                                      .locations![0].lng)!),
+                                              // target: LatLng(
+                                              //     double.tryParse(widget
+                                              //         .post.locations![0].lat)!,
+                                              //     double.tryParse(widget.post
+                                              //         .locations![0].lng)!),
+                                              zoom: 14,
+                                            ),
+                                            onTap: (LatLng latLng) {},
+                                            markers: Set<Marker>.of([
+                                              Marker(
+                                                markerId:
+                                                    MarkerId('post-location'),
+                                                // position: LatLng(
+                                                //     31.582045, 74.329376),
+                                                position: LatLng(
+                                                    double.parse(widget.post
+                                                        .locations![0].lat)!,
+                                                    double.parse(widget.post
+                                                        .locations![0].lng)!),
+                                                infoWindow: InfoWindow(
+                                                  snippet:
+                                                      "Tap for more options",
+                                                  title: widget
+                                                      .post.locations![0].name,
+                                                ),
+                                              ),
+                                            ]),
                                           ),
                                         )
                                       : Text(

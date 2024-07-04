@@ -232,26 +232,49 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                                   fontSize: 16, color: Colors.black)),
                       trailing: Icon(Icons.arrow_right),
                       onTap: () async {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                                content: Container(
+                              height: 100,
+                              width: 100,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(
+                                    color: AppColor.primary,
+                                  ),
+                                  SizedBox(
+                                    height: 16,
+                                  ),
+                                ],
+                              ),
+                            ));
+                          },
+                        );
                         User currentUser = await api().getUser(null);
-                        List<Locations> result = await Navigator.push(
+                        Navigator.pop(context);
+                        List<Locations>? result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LocationsPage(
                               currentUser: currentUser,
                               initialSelectedItems: selectedLocations.isEmpty
                                   ? []
-                                  : selectedLocations
-                                      .map((e) => e.name!)
-                                      .toList(),
+                                  : selectedLocations,
                               returnLocations: true,
                             ),
                           ),
                         );
 
                         // Update the state after the asynchronous work is done
-                        setState(() {
-                          selectedLocations = result;
-                        });
+                        if (result != null) {
+                          setState(() {
+                            selectedLocations = result;
+                          });
+                        }
                       },
                     ),
                     Padding(
@@ -351,6 +374,8 @@ class _EditNewPostScreenState extends State<EditNewPostScreen> {
                   user: widget.currentUser,
                   condition: selectedConditions[0],
                   locations: selectedLocations,
+                  lat: selectedLocations[0].lat,
+                  lng: selectedLocations[0].lng,
                   categories: selectedCategories,
                   images: images,
                 );

@@ -251,10 +251,12 @@ class _CardListState extends State<CardList> {
                   return ListView.builder(
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      return PostCard(
-                        post: snapshot.data![index],
-                        currentUser: widget.currentUser,
-                      );
+                      if (snapshot.data![index].exchangedAt == null) {
+                        return PostCard(
+                          post: snapshot.data![index],
+                          currentUser: widget.currentUser,
+                        );
+                      }
                     },
                   );
                 }

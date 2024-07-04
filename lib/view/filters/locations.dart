@@ -1,13 +1,19 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:zwap_test/global/commons/toast.dart';
 import 'package:zwap_test/model/locations.dart';
 import 'package:zwap_test/model/user.dart';
 import 'package:zwap_test/res/colors/colors.dart';
 import 'package:zwap_test/utils/api.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:zwap_test/view/location_picker.dart';
 
 class LocationsPage extends StatefulWidget {
-  final List<String> initialSelectedItems; // New parameter
+  final List<dynamic> initialSelectedItems; // New parameter
   final bool returnLocations; // New parameter
   final currentUser;
 
@@ -24,7 +30,22 @@ class LocationsPage extends StatefulWidget {
 class _LocationsPageState extends State<LocationsPage> {
   late Future<List<Locations>> _locationsFuture;
   List<dynamic> selectedItems = [];
+  dynamic selectedItem;
+  Locations? selectedLocation;
   late Future<List<Locations>> _userLocations;
+  void setInitialLocations() async {
+    selectedItems = widget.initialSelectedItems;
+    if (selectedItems.length > 0) {
+      selectedLocation = selectedItems.firstOrNull;
+      selectedItem = selectedLocation;
+    }
+    // selectedItems = await _locationsFuture.then(
+    //   (value) => value
+    //       .where(
+    //           (location) => widget.initialSelectedItems.contains(location.name))
+    //       .toList(),
+    // );
+  }
 
   @override
   void initState() {
@@ -36,15 +57,6 @@ class _LocationsPageState extends State<LocationsPage> {
     } else {
       selectedItems = List.from(widget.initialSelectedItems);
     }
-  }
-
-  void setInitialLocations() async {
-    selectedItems = await _locationsFuture.then(
-      (value) => value
-          .where(
-              (location) => widget.initialSelectedItems.contains(location.name))
-          .toList(),
-    );
   }
 
   Future<bool?> _showExitDialog() {
@@ -93,12 +105,13 @@ class _LocationsPageState extends State<LocationsPage> {
             shouldPop = await _showExitDialog() ?? false;
           }
           if (context.mounted && shouldPop) {
-            Navigator.pop(
-              context,
-              widget.returnLocations
-                  ? (selectedItems.map((item) => item as Locations).toList())
-                  : selectedItems.map((e) => e.toString()).toList(),
-            );
+            Navigator.pop(context);
+            // Navigator.pop(
+            //   context,
+            //   widget.returnLocations
+            //       ? (selectedItems.map((item) => item as Locations).toList())
+            //       : selectedItems.map((e) => e.toString()).toList(),
+            // );
           }
         },
         child: SingleChildScrollView(
@@ -111,17 +124,94 @@ class _LocationsPageState extends State<LocationsPage> {
                 child: ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(Icons.map),
-                  title: Text(
-                    "Select on Map",
-                  ),
+                  title: selectedItems == [] ||
+                          selectedItems.isEmpty ||
+                          selectedItems == null ||
+                          selectedLocation == null
+                      ? Text(
+                          "Select on Map",
+                        )
+                      : Text(selectedLocation!.name),
                   trailing: Icon(Icons.arrow_right),
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    var result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LocationPickerScreen(),
+                        builder: (context) => LocationPickerScreen(
+                          initialLocation: selectedLocation == null
+                              ? null
+                              : LatLng(double.parse(selectedLocation!.lat),
+                                  double.parse(selectedLocation!.lng)),
+                        ),
                       ),
                     );
+
+                    if (result != null) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              content: Container(
+                            height: 100,
+                            width: 100,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                  color: AppColor.primary,
+                                ),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                              ],
+                            ),
+                          ));
+                        },
+                      );
+                      List<Placemark> placemark =
+                          await placemarkFromCoordinates(
+                        result.latitude,
+                        result.longitude,
+                      );
+                      if (placemark != null) {
+                        api _api = api();
+
+                        List<Locations> savedLocations = await _api
+                            .searchLocation(placemark[3].name.toString());
+                        if (savedLocations == [] ||
+                            savedLocations.isEmpty ||
+                            savedLocations == null) {
+                          savedLocations = await _api
+                              .searchLocation(placemark[3].locality.toString());
+                          if (savedLocations == [] ||
+                              savedLocations.isEmpty ||
+                              savedLocations == null) {
+                            savedLocations = await _api.searchLocation(
+                                placemark[3].subAdministrativeArea.toString());
+                            if (savedLocations == [] ||
+                                savedLocations.isEmpty ||
+                                savedLocations == null) {
+                              savedLocations = await _api.searchLocation(
+                                  placemark[3].administrativeArea.toString());
+                            }
+                          }
+                        }
+                        setState(() {
+                          selectedItems = savedLocations;
+                          if (savedLocations.length > 0) {
+                            selectedLocation = savedLocations[0];
+                          }
+                        });
+                        Navigator.pop(context);
+                        showAboutDialog(
+                          context: context,
+                          applicationName: "Location",
+                          applicationVersion: jsonEncode(savedLocations) +
+                              "${selectedLocation.toString()}",
+                        );
+                      }
+                    }
                   },
                 ),
               ),
@@ -148,9 +238,11 @@ class _LocationsPageState extends State<LocationsPage> {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Center(
-                          child: Text(
-                              textAlign: TextAlign.center,
-                              "No Meeting Venues Set!")),
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          "No Meeting Venues Set!",
+                        ),
+                      ),
                     );
                   } else {
                     return SingleChildScrollView(
@@ -166,88 +258,61 @@ class _LocationsPageState extends State<LocationsPage> {
                                             in snapshot.data!)
                                           if (childLocation.parentId ==
                                               location.id)
-                                            CheckboxListTile(
+                                            RadioListTile(
                                               controlAffinity:
                                                   ListTileControlAffinity
                                                       .leading,
                                               title: Text(childLocation.name),
-                                              value: selectedItems.contains(
-                                                widget.returnLocations
-                                                    ? childLocation
-                                                    : childLocation.name,
-                                              ),
+                                              value: widget.returnLocations
+                                                  ? childLocation
+                                                  : childLocation.name,
+                                              groupValue: selectedItem,
                                               onChanged: (value) {
                                                 setState(() {
-                                                  if (value != null && value) {
-                                                    selectedItems.add(
-                                                      widget.returnLocations
-                                                          ? childLocation
-                                                          : childLocation.name,
-                                                    );
-                                                  } else {
-                                                    selectedItems.remove(
-                                                      widget.returnLocations
-                                                          ? childLocation
-                                                          : childLocation.name,
-                                                    );
-                                                  }
+                                                  selectedItem = value;
+                                                  selectedItems.clear();
+                                                  selectedItems
+                                                      .add(selectedItem);
+                                                  selectedLocation =
+                                                      selectedItem;
                                                 });
                                               },
                                             ),
                                       ],
                                     )
-                                  : CheckboxListTile(
+                                  : RadioListTile(
                                       controlAffinity:
                                           ListTileControlAffinity.leading,
                                       title: Text(location.name),
-                                      value: selectedItems.contains(
-                                        widget.returnLocations
-                                            ? location
-                                            : location.name,
-                                      ),
+                                      value: widget.returnLocations
+                                          ? location
+                                          : location.name,
+                                      groupValue: selectedItem,
                                       onChanged: (value) {
+                                        print('RADIO VALUE: $value');
+
                                         setState(() {
-                                          if (value != null && value) {
-                                            selectedItems.add(
-                                              widget.returnLocations
-                                                  ? location
-                                                  : location.name,
-                                            );
-                                          } else {
-                                            selectedItems.remove(
-                                              widget.returnLocations
-                                                  ? location
-                                                  : location.name,
-                                            );
-                                          }
+                                          selectedItem = value;
+                                          selectedItems.clear();
+                                          selectedItems.add(selectedItem);
+                                          selectedLocation = selectedItem;
                                         });
                                       },
                                     )
                             else if (!_hasParent(location, snapshot.data!))
-                              CheckboxListTile(
+                              RadioListTile(
                                 controlAffinity:
                                     ListTileControlAffinity.leading,
                                 title: Text(location.name),
-                                value: selectedItems.contains(
-                                  widget.returnLocations
-                                      ? location
-                                      : location.name,
-                                ),
+                                value: widget.returnLocations
+                                    ? location
+                                    : location.name,
+                                groupValue: selectedItem,
                                 onChanged: (value) {
                                   setState(() {
-                                    if (value != null && value) {
-                                      selectedItems.add(
-                                        widget.returnLocations
-                                            ? location
-                                            : location.name,
-                                      );
-                                    } else {
-                                      selectedItems.remove(
-                                        widget.returnLocations
-                                            ? location
-                                            : location.name,
-                                      );
-                                    }
+                                    selectedItem = value;
+                                    selectedItems.clear();
+                                    selectedItems.add(selectedItem);
                                   });
                                 },
                               ),
@@ -256,129 +321,131 @@ class _LocationsPageState extends State<LocationsPage> {
                     );
                   }
                 },
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Text(
-                  "All Locations",
-                  textAlign: TextAlign.left,
-                  style:
-                      GoogleFonts.manrope(fontSize: 14, color: Colors.black54),
-                ),
-              ),
-              FutureBuilder<List<Locations>>(
-                future: _locationsFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Error: ${snapshot.error}"));
-                  } else {
-                    return SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          for (var location in snapshot.data!)
-                            if (location.parentId == null)
-                              _hasChildren(location, snapshot.data!)
-                                  ? ExpansionTile(
-                                      title: Text(location.name),
-                                      children: [
-                                        for (var childLocation
-                                            in snapshot.data!)
-                                          if (childLocation.parentId ==
-                                              location.id)
-                                            CheckboxListTile(
-                                              controlAffinity:
-                                                  ListTileControlAffinity
-                                                      .leading,
-                                              title: Text(childLocation.name),
-                                              value: selectedItems.contains(
-                                                widget.returnLocations
-                                                    ? childLocation
-                                                    : childLocation.name,
-                                              ),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  if (value != null && value) {
-                                                    selectedItems.add(
-                                                      widget.returnLocations
-                                                          ? childLocation
-                                                          : childLocation.name,
-                                                    );
-                                                  } else {
-                                                    selectedItems.remove(
-                                                      widget.returnLocations
-                                                          ? childLocation
-                                                          : childLocation.name,
-                                                    );
-                                                  }
-                                                });
-                                              },
-                                            ),
-                                      ],
-                                    )
-                                  : CheckboxListTile(
-                                      controlAffinity:
-                                          ListTileControlAffinity.leading,
-                                      title: Text(location.name),
-                                      value: selectedItems.contains(
-                                        widget.returnLocations
-                                            ? location
-                                            : location.name,
-                                      ),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          if (value != null && value) {
-                                            selectedItems.add(
-                                              widget.returnLocations
-                                                  ? location
-                                                  : location.name,
-                                            );
-                                          } else {
-                                            selectedItems.remove(
-                                              widget.returnLocations
-                                                  ? location
-                                                  : location.name,
-                                            );
-                                          }
-                                        });
-                                      },
-                                    )
-                            else if (!_hasParent(location, snapshot.data!))
-                              CheckboxListTile(
-                                controlAffinity:
-                                    ListTileControlAffinity.leading,
-                                title: Text(location.name),
-                                value: selectedItems.contains(
-                                  widget.returnLocations
-                                      ? location
-                                      : location.name,
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value != null && value) {
-                                      selectedItems.add(
-                                        widget.returnLocations
-                                            ? location
-                                            : location.name,
-                                      );
-                                    } else {
-                                      selectedItems.remove(
-                                        widget.returnLocations
-                                            ? location
-                                            : location.name,
-                                      );
-                                    }
-                                  });
-                                },
-                              ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              ),
+              )
+
+              // ALL LOCATIONS
+              // Padding(
+              //   padding:
+              //       const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              //   child: Text(
+              //     "All Locations",
+              //     textAlign: TextAlign.left,
+              //     style:
+              //         GoogleFonts.manrope(fontSize: 14, color: Colors.black54),
+              //   ),
+              // ),
+              // FutureBuilder<List<Locations>>(
+              //   future: _locationsFuture,
+              //   builder: (context, snapshot) {
+              //     if (snapshot.connectionState == ConnectionState.waiting) {
+              //       return Center(child: CircularProgressIndicator());
+              //     } else if (snapshot.hasError) {
+              //       return Center(child: Text("Error: ${snapshot.error}"));
+              //     } else {
+              //       return SingleChildScrollView(
+              //         child: Column(
+              //           children: [
+              //             for (var location in snapshot.data!)
+              //               if (location.parentId == null)
+              //                 _hasChildren(location, snapshot.data!)
+              //                     ? ExpansionTile(
+              //                         title: Text(location.name),
+              //                         children: [
+              //                           for (var childLocation
+              //                               in snapshot.data!)
+              //                             if (childLocation.parentId ==
+              //                                 location.id)
+              //                               CheckboxListTile(
+              //                                 controlAffinity:
+              //                                     ListTileControlAffinity
+              //                                         .leading,
+              //                                 title: Text(childLocation.name),
+              //                                 value: selectedItems.contains(
+              //                                   widget.returnLocations
+              //                                       ? childLocation
+              //                                       : childLocation.name,
+              //                                 ),
+              //                                 onChanged: (value) {
+              //                                   setState(() {
+              //                                     if (value != null && value) {
+              //                                       selectedItems.add(
+              //                                         widget.returnLocations
+              //                                             ? childLocation
+              //                                             : childLocation.name,
+              //                                       );
+              //                                     } else {
+              //                                       selectedItems.remove(
+              //                                         widget.returnLocations
+              //                                             ? childLocation
+              //                                             : childLocation.name,
+              //                                       );
+              //                                     }
+              //                                   });
+              //                                 },
+              //                               ),
+              //                         ],
+              //                       )
+              //                     : CheckboxListTile(
+              //                         controlAffinity:
+              //                             ListTileControlAffinity.leading,
+              //                         title: Text(location.name),
+              //                         value: selectedItems.contains(
+              //                           widget.returnLocations
+              //                               ? location
+              //                               : location.name,
+              //                         ),
+              //                         onChanged: (value) {
+              //                           setState(() {
+              //                             if (value != null && value) {
+              //                               selectedItems.add(
+              //                                 widget.returnLocations
+              //                                     ? location
+              //                                     : location.name,
+              //                               );
+              //                             } else {
+              //                               selectedItems.remove(
+              //                                 widget.returnLocations
+              //                                     ? location
+              //                                     : location.name,
+              //                               );
+              //                             }
+              //                           });
+              //                         },
+              //                       )
+              //               else if (!_hasParent(location, snapshot.data!))
+              //                 CheckboxListTile(
+              //                   controlAffinity:
+              //                       ListTileControlAffinity.leading,
+              //                   title: Text(location.name),
+              //                   value: selectedItems.contains(
+              //                     widget.returnLocations
+              //                         ? location
+              //                         : location.name,
+              //                   ),
+              //                   onChanged: (value) {
+              //                     setState(() {
+              //                       if (value != null && value) {
+              //                         selectedItems.add(
+              //                           widget.returnLocations
+              //                               ? location
+              //                               : location.name,
+              //                         );
+              //                       } else {
+              //                         selectedItems.remove(
+              //                           widget.returnLocations
+              //                               ? location
+              //                               : location.name,
+              //                         );
+              //                       }
+              //                     });
+              //                   },
+              //                 ),
+              //           ],
+              //         ),
+              //       );
+              //     }
+              //   },
+              // ),
             ],
           ),
         ),
